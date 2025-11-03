@@ -3,32 +3,37 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-        <title>ひらめきリレー</title>
+        <title>アイデア投稿SNS</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <h1>ひらめきリレー</h1>
-        <h2>ひらめきをリレーするゲームです。</h2>
+        <div class="container">
+            <h1>アイデア投稿SNS</h1>
+            <h2>みんなのアイデアを見てみましょう</h2>
 
-        {% if items == [] %}
-            <p>本がありません。</p>
-        {% else %}
-            <table border="3">
-                <tr>
-                    <th>タイトル</th>
-                    <th>詳細</th>
-                    <th>カテゴリ</th>
-                </tr>
-
-                {% for item in items %}
+            {% if items == [] %}
+                <p>まだ投稿されたアイデアがありません。</p>
+            {% else %}
+                <table>
                     <tr>
-                        <td>{{ item['title'] }}</td>
-                        <td>{{ item['detail'] }}</td>
-                        <td>{{ item['category'] }}</td>
+                        <th>タイトル</th>
+                        <th>詳細</th>
+                        <th>カテゴリ</th>
                     </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
-        <a href="{{ url_for('form') }}">編集</a>
+
+                    {% for item in items %}
+                        <tr>
+                            <td><strong>{{ item['title'] }}</strong></td>
+                            <td>{{ item['detail'] }}</td>
+                            <td><span style="background: #e8e8ff; padding: 5px 10px; border-radius: 4px; font-size: 14px;">{{ item['category'] }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            
+            <div class="button-area">
+                <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
+            </div>
+        </div>
     </body>
 </html>

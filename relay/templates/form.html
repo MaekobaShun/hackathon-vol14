@@ -2,38 +2,46 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>ひらめきリレー</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>アイデア投稿 - アイデア投稿SNS</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <h1>ひらめきリレー</h1>
-        <p>新しい画面です</p>
-        <form method="post" action="{{ url_for('register') }}">
-            <table border="3">
-                <tr>
-                    <th>タイトル</th>
-                    <th>詳細</th>
-                    <th>カテゴリ</th>
-                </tr>
-
-
-                <tr>
-                    <td><input type="text" name="title"></td>
-                    <td><textarea name="detail"></textarea></td>
-                    <td><select name="category">
-                        <option value="ビジネス・業務効率化">ビジネス・業務効率化</option>
-                        <option value="教育">教育</option>
-                        <option value="エンタメ">エンタメ</option>
-                        <option value="クリエイティブ・創作支援">クリエイティブ・創作支援</option>
-                        <option value="生活・ライフスタイル">生活・ライフスタイル</option>
-                        <option value="コミュニケーション">コミュニケーション</option>
-                        <option value="開発者ツール">開発者ツール</option>
-                        <option value="その他">その他</option>
-                    </select></td>
-                </tr>
-            </table>
-        <br>
-        <input type="submit" value="登録">
-    </form>
+        <div class="container">
+            <h1>アイデアを投稿する</h1>
+            <form method="post" action="{{ url_for('register') }}">
+                <table>
+                    <tr>
+                        <th>タイトル</th>
+                        <td><input type="text" name="title" placeholder="アイデアのタイトルを入力" required></td>
+                    </tr>
+                    <tr>
+                        <th>詳細</th>
+                        <td><textarea name="detail" placeholder="アイデアの詳細を入力してください" required></textarea></td>
+                    </tr>
+                    <tr>
+                        <th>カテゴリ</th>
+                        <td>
+                            <select name="category" required>
+                                <option value="">カテゴリを選択してください</option>
+                                <option value="ビジネス・業務効率化">ビジネス・業務効率化</option>
+                                <option value="教育">教育</option>
+                                <option value="エンタメ">エンタメ</option>
+                                <option value="クリエイティブ・創作支援">クリエイティブ・創作支援</option>
+                                <option value="生活・ライフスタイル">生活・ライフスタイル</option>
+                                <option value="コミュニケーション">コミュニケーション</option>
+                                <option value="開発者ツール">開発者ツール</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                
+                <div class="button-area">
+                    <input type="submit" value="投稿する">
+                    <a href="{{ url_for('index') }}" class="cancel-link">キャンセル</a>
+                </div>
+            </form>
+        </div>
     </body>
 </html>

@@ -1,8 +1,7 @@
 from relay import app
 from flask import render_template, request, redirect, url_for
+from relay.db import DATABASE
 import sqlite3
-
-DATABASE = 'databese.db'
 
 @app.route('/')
 def index():
@@ -14,9 +13,9 @@ def index():
 
     for row in db_items:
         items.append({
-            'title':row[0],
-            'detail':row[1],
-            'category':row[2],
+            'title': row[0],
+            'detail': row[1],
+            'category': row[2],
         })
 
     return render_template(
