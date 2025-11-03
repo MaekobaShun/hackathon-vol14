@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>💡ひらめきガチャ</title>
+    </head>
+
+    <body>
+        <h1>💡ひらめきガチャ</h1>
+
+        <p>ひらめきをゲットしよう！</p>
+
+        <form action="{{ url_for('spin') }}" method="get">
+            <button type="submit">ガチャを回す</button>
+        </form>
+
+        <br>
+        <a href="{{ url_for('index') }}">ホームに戻る</a>
+    </body>
+</html>
