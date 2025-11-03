@@ -1,40 +1,221 @@
-h1 {
-    position: relative;
-    background-color: #f0f0f0;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
+/* リセットと基本設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
     color: #333;
 }
 
-h1:after{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
+/* コンテナ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 30px;
 }
 
-form {
-    margin-top: 20px;
+/* ヘッダー */
+h1 {
+    color: #667eea;
+    font-size: 32px;
+    font-weight: 700;
     text-align: center;
+    margin-bottom: 10px;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+h1:after {
+    display: none;
+}
+
+h2 {
+    color: #666;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+/* テーブル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+}
+
+table td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: top;
+}
+
+table tr:last-child td {
+    border-bottom: none;
+}
+
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* フォーム */
+form {
+    margin: 30px 0;
 }
 
 form table {
-    margin: 0 auto;
+    margin: 0;
 }
 
 form table th {
-    background-color: #f0f0f0;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+    width: 150px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    vertical-align: middle;
 }
 
+form table td {
+    padding: 15px;
+}
+
+/* 入力フィールド */
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* ボタン */
+input[type="submit"],
+.button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-block;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+input[type="submit"]:hover,
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+input[type="submit"]:active,
+.button:active {
+    transform: translateY(0);
+}
+
+/* リンク */
+a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* ボタンリンク */
+a.button-link {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin: 20px 0;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+a.button-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+/* メッセージ */
+p {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 16px;
+}
+
+/* ボタンエリア */
+.button-area {
+    text-align: center;
+    margin: 30px 0;
+}
+
+/* キャンセルリンク */
+.cancel-link {
+    display: inline-block;
+    margin-left: 15px;
+    color: #666;
+    font-weight: 400;
+}
+
+.cancel-link:hover {
+    color: #333;
+    text-decoration: underline;
+}
