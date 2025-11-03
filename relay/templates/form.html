@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>ひらめきリレー</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <h1>ひらめきリレー</h1>
+        <p>新しい画面です</p>
+        <form method="post" action="{{ url_for('register') }}">
+            <table border="3">
+                <tr>
+                    <th>タイトル</th>
+                    <th>価格</th>
+                    <th>入荷日</th>
+                </tr>
+
+
+                <tr>
+                    <td><input type="text" name="arrival_day"></td>
+                    <td><input type="text" name="price"></td>
+                    <td><input type="text" name="title"></td>
+                </tr>
+            </table>
+        <br>
+        <input type="submit" value="登録">
+    </form>
+    </body>
+</html>
