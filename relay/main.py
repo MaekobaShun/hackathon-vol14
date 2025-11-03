@@ -7,21 +7,21 @@ DATABASE = 'databese.db'
 @app.route('/')
 def index():
     con = sqlite3.connect(DATABASE)
-    db_books = con.execute("SELECT * FROM books").fetchall()
+    db_items = con.execute("SELECT * FROM items").fetchall()
     con.close()
 
-    books = []
+    items = []
 
-    for row in db_books:
-        books.append({
+    for row in db_items:
+        items.append({
             'title':row[0],
-            'price':row[1],
-            'arrival_day':row[2],
+            'detail':row[1],
+            'category':row[2],
         })
 
     return render_template(
         'index.html',
-        books=books
+        items=items
     )
 
 @app.route('/form')
@@ -33,11 +33,11 @@ def form():
 @app.route('/register', methods=['POST'])
 def register():
     title = request.form['title']
-    price = request.form['price']
-    arrival_day = request.form['arrival_day']
+    detail = request.form['detail']
+    category = request.form['category']
 
     con = sqlite3.connect(DATABASE)
-    con.execute("INSERT INTO books VALUES (?, ?, ?)", [title, price, arrival_day])
+    con.execute("INSERT INTO items VALUES (?, ?, ?)", [title, detail, category])
     con.commit()
     con.close()
 

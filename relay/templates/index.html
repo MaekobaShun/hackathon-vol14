@@ -10,21 +10,21 @@
         <h1>ひらめきリレー</h1>
         <h2>ひらめきをリレーするゲームです。</h2>
 
-        {% if books == [] %}
+        {% if items == [] %}
             <p>本がありません。</p>
         {% else %}
             <table border="3">
                 <tr>
                     <th>タイトル</th>
-                    <th>価格</th>
-                    <th>入荷日</th>
+                    <th>詳細</th>
+                    <th>カテゴリ</th>
                 </tr>
 
-                {% for book in books %}
+                {% for item in items %}
                     <tr>
-                        <td>{{ book['title'] }}</td>
-                        <td>{{ book['price'] }}</td>
-                        <td>{{ book['arrival_day'] }}</td>
+                        <td>{{ item['title'] }}</td>
+                        <td>{{ item['detail'] }}</td>
+                        <td>{{ item['category'] }}</td>
                     </tr>
                 {% endfor %}
             </table>
