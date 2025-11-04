@@ -2,6 +2,7 @@ from relay import app
 from flask import render_template, request, redirect, url_for
 from relay.db import DATABASE
 import sqlite3
+from relay.db import fetch_random_item
 
 @app.route('/')
 def index():
@@ -42,3 +43,19 @@ def register():
 
     return redirect(url_for('index'))
 
+# ここからガチャ機能
+@app.route('/gacha')
+def gacha():
+    return render_template("gacha.html")
+
+# ランダムに1つのアイテムを表示するルート
+@app.route('/result')
+def result():
+    item = fetch_random_item()
+    return render_template("result.html", item=item)
+
+# ガチャを回して結果ページにリダイレクトするルート
+@app.route('/spin')
+def spin():
+    return redirect(url_for('result'))
+# ここまでガチャ機能
