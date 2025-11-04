@@ -7,7 +7,7 @@ from relay.db import fetch_random_item
 @app.route('/')
 def index():
     con = sqlite3.connect(DATABASE)
-    db_items = con.execute("SELECT * FROM items").fetchall()
+    db_items = con.execute("SELECT * FROM ideas").fetchall()
     con.close()
 
     items = []
@@ -37,7 +37,7 @@ def register():
     category = request.form['category']
 
     con = sqlite3.connect(DATABASE)
-    con.execute("INSERT INTO items VALUES (?, ?, ?)", [title, detail, category])
+    con.execute("INSERT INTO ideas VALUES (?, ?, ?)", [title, detail, category])
     con.commit()
     con.close()
 
