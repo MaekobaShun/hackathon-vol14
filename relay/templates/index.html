@@ -2,13 +2,13 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-        <title>アイデア投稿SNS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ひらめきリレー - アイデア投稿SNS</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
         <div class="container">
-            <h1>アイデア投稿SNS</h1>
+            <h1>ひらめきリレー</h1>
             <h2>みんなのアイデアを見てみましょう</h2>
 
             {% if items == [] %}
@@ -30,7 +30,6 @@
                     {% endfor %}
                 </table>
             {% endif %}
-            
             <div class="button-area">
                 <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
             </div>
