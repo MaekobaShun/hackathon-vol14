@@ -1,8 +1,83 @@
 import sqlite3
+import random
 
-DATABASE = 'databese.db'
+DATABASE = 'database.db'
 
 def create_table():
     con = sqlite3.connect(DATABASE)
-    con.execute("CREATE TABLE IF NOT EXISTS items (title, detail, category)")
+    
+    # マイページ（ユーザー情報）
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS mypage (
+            user_id      VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
+            nickname     VARCHAR(32) NOT NULL,
+            password     VARCHAR(128) NOT NULL,
+            email        VARCHAR(128) UNIQUE NOT NULL,
+            created_at   DATETIME NOT NULL
+        )
+    """)
+    
+    # アイデア
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS idea (
+            idea_id      VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
+            title        VARCHAR(128) NOT NULL,
+            detail       TEXT NOT NULL,
+            category     VARCHAR(32) NOT NULL,
+            user_id      VARCHAR(64) NOT NULL,
+            created_at   DATETIME NOT NULL
+        )
+    """)
+    
+    # ガチャリザルト（ガチャ結果）
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS gacha_result (
+            result_id    VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
+            user_id      VARCHAR(64) NOT NULL,
+            idea_id      VARCHAR(64) NOT NULL,
+            created_at   DATETIME NOT NULL
+        )
+    """)
+    
+    # 復活通知
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS revival_notify (
+            notify_id    VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
+            idea_id      VARCHAR(64) NOT NULL,
+            author_id    VARCHAR(64) NOT NULL,
+            picker_id    VARCHAR(64) NOT NULL,
+            created_at   DATETIME NOT NULL
+        )
+    """)
+    
+    # サンクス
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS thanks (
+            thanks_id       VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
+            gacha_type_id   VARCHAR(64) NOT NULL,
+            sender_id       VARCHAR(64) NOT NULL,
+            receiver_id     VARCHAR(64) NOT NULL,
+            stamp_type      VARCHAR(32) NOT NULL,
+            created_at      DATETIME NOT NULL
+        )
+    """)
+    
+    con.commit()
     con.close()
+
+# データベースから全アイテムを取得する関数
+def fetch_items():
+    con = sqlite3.connect(DATABASE)
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM ideas")
+    rows = cursor.fetchall()
+    con.close()
+    return rows
+
+
+# ランダムに1つのアイテムを取得する関数
+def fetch_random_item():
+    items = fetch_items()
+    if items:
+        return random.choice(items)
+    return None
