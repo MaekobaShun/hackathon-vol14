@@ -7,16 +7,19 @@ from relay.db import fetch_random_item
 @app.route('/')
 def index():
     con = sqlite3.connect(DATABASE)
-    db_items = con.execute("SELECT * FROM ideas").fetchall()
+    db_items = con.execute("SELECT idea_id, title, detail, category, user_id, created_at FROM idea ORDER BY created_at DESC").fetchall()
     con.close()
 
     items = []
 
     for row in db_items:
         items.append({
-            'title': row[0],
-            'detail': row[1],
-            'category': row[2],
+            'idea_id': row[0],
+            'title': row[1],
+            'detail': row[2],
+            'category': row[3],
+            'user_id': row[4],
+            'created_at': row[5]
         })
 
     return render_template(
