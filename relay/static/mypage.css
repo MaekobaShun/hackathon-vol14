@@ -383,6 +383,85 @@ h1 {
     color: #f5576c;
 }
 
+/* 復活通知リスト */
+.revival-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.revival-item {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border-left: 4px solid #ffa500;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.revival-item:hover {
+    background: #fff4e6;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.15);
+}
+
+.revival-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 165, 0, 0.1);
+    border-radius: 50%;
+}
+
+.revival-content {
+    flex: 1;
+}
+
+.revival-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.revival-header h4 {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    flex: 1;
+}
+
+.revival-message {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 8px 0;
+}
+
+.revival-message strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.revival-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.revival-date {
+    font-size: 12px;
+    color: #999;
+}
+
 /* ボタンエリア */
 .button-area {
     text-align: center;
@@ -479,6 +558,22 @@ h1 {
 
     .gacha-date {
         align-self: flex-end;
+    }
+
+    .revival-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .revival-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+
+    .revival-header {
+        flex-direction: column;
+        gap: 8px;
     }
 }
 

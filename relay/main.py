@@ -89,6 +89,7 @@ def mypage():
         }
         ideas = []
         gacha_results = []
+        revival_notifications = []
     else:
         user = {
             'user_id': user_row[0],
@@ -132,6 +133,37 @@ def mypage():
                 'detail': row[3],
                 'category': row[4]
             })
+        
+        # 復活通知履歴を取得（自分のアイデアが他のユーザーにガチャで引かれた履歴）
+        revival_rows = con.execute("""
+            SELECT 
+                gr.result_id,
+                gr.created_at,
+                gr.user_id as picker_id,
+                u.nickname as picker_nickname,
+                i.idea_id,
+                i.title,
+                i.detail,
+                i.category
+            FROM gacha_result gr
+            JOIN idea i ON gr.idea_id = i.idea_id
+            LEFT JOIN mypage u ON gr.user_id = u.user_id
+            WHERE i.user_id = ? AND gr.user_id != ?
+            ORDER BY gr.created_at DESC
+        """, (user_id, user_id)).fetchall()
+        
+        revival_notifications = []
+        for row in revival_rows:
+            revival_notifications.append({
+                'result_id': row[0],
+                'created_at': row[1],
+                'picker_id': row[2],
+                'picker_nickname': row[3] if row[3] else '不明なユーザー',
+                'idea_id': row[4],
+                'idea_title': row[5],
+                'detail': row[6],
+                'category': row[7]
+            })
     
     con.close()
     
@@ -139,5 +171,6 @@ def mypage():
         'mypage.html',
         user=user,
         ideas=ideas,
-        gacha_results=gacha_results
+        gacha_results=gacha_results,
+        revival_notifications=revival_notifications
     )

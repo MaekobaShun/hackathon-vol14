@@ -51,6 +51,10 @@
                         <span class="tab-label">ガチャで獲得</span>
                         <span class="tab-count">{{ gacha_results|length }}</span>
                     </button>
+                    <button class="tab-button" data-tab="revival">
+                        <span class="tab-label">復活通知</span>
+                        <span class="tab-count">{{ revival_notifications|length }}</span>
+                    </button>
                 </div>
 
                 <!-- 投稿したアイデアタブ -->
@@ -91,6 +95,33 @@
                                 <div class="idea-footer">
                                     <span class="gacha-badge-text">🎰 ガチャで獲得</span>
                                     <span class="idea-date">{{ result.created_at }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- 復活通知タブ -->
+                <div id="revival-tab" class="tab-content">
+                    {% if revival_notifications == [] %}
+                        <p class="empty-message">復活通知はまだありません。</p>
+                    {% else %}
+                        <div class="revival-list">
+                            {% for notification in revival_notifications %}
+                            <div class="revival-item">
+                                <div class="revival-icon">🔔</div>
+                                <div class="revival-content">
+                                    <div class="revival-header">
+                                        <h4>{{ notification.idea_title }}</h4>
+                                        <span class="idea-category">{{ notification.category }}</span>
+                                    </div>
+                                    <p class="revival-message">
+                                        <strong>@{{ notification.picker_id }}</strong>（{{ notification.picker_nickname }}）さんがあなたのアイデアをガチャで獲得しました！
+                                    </p>
+                                    <div class="revival-footer">
+                                        <span class="revival-date">{{ notification.created_at }}</span>
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
