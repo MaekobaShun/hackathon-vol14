@@ -1,0 +1,466 @@
+/* リセットと基本設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* コンテナ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+}
+
+/* ヘッダー */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+h1 {
+    color: #667eea;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links a:hover {
+    background-color: #f0f0ff;
+    color: #764ba2;
+}
+
+/* プロフィールセクション */
+.profile-section {
+    margin-bottom: 40px;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 30px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-info h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.profile-email {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 5px;
+}
+
+.profile-date {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* コンテンツセクション */
+.content-section {
+    margin-bottom: 30px;
+}
+
+/* タブナビゲーション */
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 20px;
+    background: white;
+}
+
+.tab-button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tab-button:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    color: #667eea;
+}
+
+.tab-button.active {
+    color: #667eea;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px 2px 0 0;
+}
+
+.tab-label {
+    font-weight: 600;
+}
+
+.tab-count {
+    background: #e0e0e0;
+    color: #666;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+}
+
+.tab-button.active .tab-count {
+    background: #667eea;
+    color: white;
+}
+
+/* タブコンテンツ */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 24px;
+    color: #667eea;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 16px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+/* アイデアグリッド */
+.ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.idea-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.idea-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    border-color: #667eea;
+}
+
+.idea-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 12px;
+}
+
+.idea-header h4 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.idea-category {
+    background: #e8e8ff;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #667eea;
+    white-space: nowrap;
+}
+
+.idea-detail {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.idea-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.idea-date {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ガチャリスト */
+.gacha-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gacha-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.gacha-item:hover {
+    background: #f0f0ff;
+    transform: translateX(4px);
+}
+
+.gacha-content h4 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.gacha-category {
+    font-size: 12px;
+    color: #667eea;
+    background: #e8e8ff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.gacha-date {
+    font-size: 12px;
+    color: #999;
+    white-space: nowrap;
+}
+
+/* ガチャカード */
+.gacha-card {
+    border-left: 4px solid #f5576c;
+}
+
+.gacha-card .idea-header h4::before {
+    content: '🎰 ';
+}
+
+.gacha-badge-text {
+    font-size: 12px;
+    color: #f5576c;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.gacha-badge {
+    background: #ffe8e8;
+    color: #f5576c;
+}
+
+/* ボタンエリア */
+.button-area {
+    text-align: center;
+    margin: 40px 0 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.button-link {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 16px;
+}
+
+.button-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.button-link.secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.button-link.secondary:hover {
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    h1 {
+        font-size: 24px;
+        justify-content: center;
+    }
+
+    .header-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        padding: 12px 16px;
+        justify-content: flex-start;
+    }
+
+    .tab-button.active::after {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        height: 2px;
+        width: 100%;
+    }
+
+    .ideas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .button-area {
+        flex-direction: column;
+    }
+
+    .gacha-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .gacha-date {
+        align-self: flex-end;
+    }
+}
+
+

@@ -3,40 +3,126 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ひらめきリレー - アイデア投稿SNS</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>マイページ - ひらめきリレー</title>
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='mypage.css') }}">
     </head>
     <body>
         <div class="container">
-            <h1>ひらめきリレー</h1>
-            <h2>マイページ</h2>
+            <div class="header">
+                <h1>
+                    <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
+                    ひらめきリレー
+                </h1>
+                <nav class="nav-links">
+                    <a href="{{ url_for('index') }}">ホーム</a>
+                    <a href="{{ url_for('form') }}">投稿</a>
+                    <a href="{{ url_for('gacha') }}">ガチャ</a>
+                </nav>
+            </div>
 
-            <h3>{{ username }}</h3>
-            {% if items == [] %}
-                <p>まだ投稿されたアイデアがありません。</p>
-            {% else %}
-                <table>
-                    <tr>
-                        <th>タイトル</th>
-                        <th>詳細</th>
-                        <th>カテゴリ</th>
-                    </tr>
+            <div class="profile-section">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <span>{{ user.nickname[0] if user.nickname else 'U' }}</span>
+                        </div>
+                        <div class="profile-info">
+                            <h2>{{ user.nickname }}</h2>
+                            <p class="profile-email">{{ user.email }}</p>
+                            <p class="profile-date">登録日: {{ user.created_at }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    {% for item in items %}
-                        <tr>
-                            <td><strong>{{ item['title'] }}</strong></td>
-                            <td>{{ item['detail'] }}</td>
-                            <td><span style="background: #e8e8ff; padding: 5px 10px; border-radius: 4px; font-size: 14px;">{{ item['category'] }}</span></td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% endif %}
+            <div class="content-section">
+                <!-- タブナビゲーション -->
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="posted">
+                        <span class="tab-label">投稿したアイデア</span>
+                        <span class="tab-count">{{ ideas|length }}</span>
+                    </button>
+                    <button class="tab-button" data-tab="gacha">
+                        <span class="tab-label">ガチャで獲得</span>
+                        <span class="tab-count">{{ gacha_results|length }}</span>
+                    </button>
+                </div>
+
+                <!-- 投稿したアイデアタブ -->
+                <div id="posted-tab" class="tab-content active">
+                    {% if ideas == [] %}
+                        <p class="empty-message">まだ投稿したアイデアがありません。</p>
+                    {% else %}
+                        <div class="ideas-grid">
+                            {% for idea in ideas %}
+                            <div class="idea-card">
+                                <div class="idea-header">
+                                    <h4>{{ idea.title }}</h4>
+                                    <span class="idea-category">{{ idea.category }}</span>
+                                </div>
+                                <p class="idea-detail">{{ idea.detail }}</p>
+                                <div class="idea-footer">
+                                    <span class="idea-date">{{ idea.created_at }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- ガチャで獲得したアイデアタブ -->
+                <div id="gacha-tab" class="tab-content">
+                    {% if gacha_results == [] %}
+                        <p class="empty-message">まだガチャを回していません。</p>
+                    {% else %}
+                        <div class="ideas-grid">
+                            {% for result in gacha_results %}
+                            <div class="idea-card gacha-card">
+                                <div class="idea-header">
+                                    <h4>{{ result.idea_title }}</h4>
+                                    <span class="idea-category gacha-badge">{{ result.category }}</span>
+                                </div>
+                                <p class="idea-detail">{{ result.detail }}</p>
+                                <div class="idea-footer">
+                                    <span class="gacha-badge-text">🎰 ガチャで獲得</span>
+                                    <span class="idea-date">{{ result.created_at }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
             <div class="button-area">
-                <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
-                <br><br>
-                <!-- ガチャへのリンク-->
-                <a href="{{ url_for('gacha') }}">💡 ガチャを回してひらめきをゲット！</a>
+                <a href="{{ url_for('form') }}" class="button-link">💡 新しいアイデアを投稿する</a>
+                <a href="{{ url_for('gacha') }}" class="button-link secondary">🎰 ガチャを回す</a>
             </div>
         </div>
+
+        <script>
+            // タブ切り替え機能
+            document.addEventListener('DOMContentLoaded', function() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const targetTab = this.getAttribute('data-tab');
+
+                        // すべてのタブボタンからactiveクラスを削除
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        // クリックされたタブボタンにactiveクラスを追加
+                        this.classList.add('active');
+
+                        // すべてのタブコンテンツを非表示
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        // 選択されたタブコンテンツを表示
+                        document.getElementById(targetTab + '-tab').classList.add('active');
+                    });
+                });
+            });
+        </script>
     </body>
 </html>
