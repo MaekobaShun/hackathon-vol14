@@ -3,6 +3,8 @@ from flask import render_template, request, redirect, url_for
 from relay.db import DATABASE
 import sqlite3
 from relay.db import fetch_random_item
+import uuid
+from datetime import datetime
 
 @app.route('/')
 def index():
@@ -14,9 +16,9 @@ def index():
 
     for row in db_items:
         items.append({
-            'title': row[0],
-            'detail': row[1],
-            'category': row[2],
+            'title': row[1],
+            'detail': row[2],
+            'category': row[3],
         })
 
     return render_template(
@@ -37,7 +39,11 @@ def register():
     category = request.form['category']
 
     con = sqlite3.connect(DATABASE)
-    con.execute("INSERT INTO ideas VALUES (?, ?, ?)", [title, detail, category])
+    idea_id = str(uuid.uuid4())
+    user_id = ''  # 一時的に空文字列（後で認証機能を追加する場合に修正）
+    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    con.execute("INSERT INTO ideas VALUES (?, ?, ?, ?, ?, ?)", 
+                [idea_id, title, detail, category, user_id, created_at])
     con.commit()
     con.close()
 
