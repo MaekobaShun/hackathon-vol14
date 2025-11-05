@@ -74,7 +74,7 @@ def mypage():
     
     # ユーザー情報を取得
     user_row = con.execute(
-        "SELECT user_id, nickname, email, created_at FROM mypage WHERE user_id = ?",
+        "SELECT user_id, nickname, email, icon_path, created_at FROM mypage WHERE user_id = ?",
         (user_id,)
     ).fetchone()
     
@@ -84,6 +84,7 @@ def mypage():
             'user_id': user_id,
             'nickname': 'テストユーザー',
             'email': 'test@example.com',
+            'icon_path': None,
             'created_at': '2024-01-01 00:00:00'
         }
         ideas = []
@@ -93,7 +94,8 @@ def mypage():
             'user_id': user_row[0],
             'nickname': user_row[1],
             'email': user_row[2],
-            'created_at': user_row[3]
+            'icon_path': user_row[3],
+            'created_at': user_row[4]
         }
         
         # ユーザーが投稿したアイデアを取得

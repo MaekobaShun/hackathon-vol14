@@ -14,9 +14,17 @@ def create_table():
             nickname     VARCHAR(32) NOT NULL,
             password     VARCHAR(128) NOT NULL,
             email        VARCHAR(128) UNIQUE NOT NULL,
+            icon_path    VARCHAR(255),
             created_at   DATETIME NOT NULL
         )
     """)
+    
+    # 既存のテーブルにicon_pathカラムを追加（存在しない場合）
+    try:
+        con.execute("ALTER TABLE mypage ADD COLUMN icon_path VARCHAR(255)")
+    except sqlite3.OperationalError:
+        # カラムが既に存在する場合はスキップ
+        pass
     
     # アイデア
     con.execute("""

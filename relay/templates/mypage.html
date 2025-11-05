@@ -25,11 +25,15 @@
                 <div class="profile-card">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <span>{{ user.nickname[0] if user.nickname else 'U' }}</span>
+                            {% if user.icon_path %}
+                                <img src="{{ url_for('static', filename=user.icon_path) }}" alt="ユーザーアイコン" class="avatar-image">
+                            {% else %}
+                                <span class="avatar-text">{{ user.nickname[0] if user.nickname else 'U' }}</span>
+                            {% endif %}
                         </div>
                         <div class="profile-info">
                             <h2>{{ user.nickname }}</h2>
-                            <p class="profile-email">{{ user.email }}</p>
+                            <p class="profile-userid">@{{ user.user_id }}</p>
                             <p class="profile-date">登録日: {{ user.created_at }}</p>
                         </div>
                     </div>
