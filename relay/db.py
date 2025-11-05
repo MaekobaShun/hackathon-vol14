@@ -28,7 +28,7 @@ def create_table():
     
     # アイデア
     con.execute("""
-        CREATE TABLE IF NOT EXISTS idea (
+        CREATE TABLE IF NOT EXISTS ideas (
             idea_id      VARCHAR(64) PRIMARY KEY UNIQUE NOT NULL,
             title        VARCHAR(128) NOT NULL,
             detail       TEXT NOT NULL,

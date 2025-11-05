@@ -3,11 +3,13 @@ from flask import render_template, request, redirect, url_for
 from relay.db import DATABASE
 import sqlite3
 from relay.db import fetch_random_item
+import uuid
+from datetime import datetime
 
 @app.route('/')
 def index():
     con = sqlite3.connect(DATABASE)
-    db_items = con.execute("SELECT idea_id, title, detail, category, user_id, created_at FROM idea ORDER BY created_at DESC").fetchall()
+    db_items = con.execute("SELECT idea_id, title, detail, category, user_id, created_at FROM ideas ORDER BY created_at DESC").fetchall()
     con.close()
 
     items = []
@@ -40,7 +42,11 @@ def register():
     category = request.form['category']
 
     con = sqlite3.connect(DATABASE)
-    con.execute("INSERT INTO ideas VALUES (?, ?, ?)", [title, detail, category])
+    idea_id = str(uuid.uuid4())
+    user_id = ''  # 一時的に空文字列（後で認証機能を追加する場合に修正）
+    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    con.execute("INSERT INTO ideas VALUES (?, ?, ?, ?, ?, ?)", 
+                [idea_id, title, detail, category, user_id, created_at])
     con.commit()
     con.close()
 
@@ -101,7 +107,7 @@ def mypage():
         
         # ユーザーが投稿したアイデアを取得
         idea_rows = con.execute(
-            "SELECT idea_id, title, detail, category, created_at FROM idea WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
             (user_id,)
         ).fetchall()
         
@@ -115,11 +121,11 @@ def mypage():
                 'created_at': row[4]
             })
         
-        # ガチャ履歴を取得（ideaテーブルとJOIN）
+        # ガチャ履歴を取得（ideasテーブルとJOIN）
         gacha_rows = con.execute("""
             SELECT gr.result_id, gr.created_at, i.title, i.detail, i.category
             FROM gacha_result gr
-            JOIN idea i ON gr.idea_id = i.idea_id
+            JOIN ideas i ON gr.idea_id = i.idea_id
             WHERE gr.user_id = ?
             ORDER BY gr.created_at DESC
         """, (user_id,)).fetchall()
@@ -146,7 +152,7 @@ def mypage():
                 i.detail,
                 i.category
             FROM gacha_result gr
-            JOIN idea i ON gr.idea_id = i.idea_id
+            JOIN ideas i ON gr.idea_id = i.idea_id
             LEFT JOIN mypage u ON gr.user_id = u.user_id
             WHERE i.user_id = ? AND gr.user_id != ?
             ORDER BY gr.created_at DESC
