@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ユーザー登録 - ひらめきリレー</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <style>
+            .form-card {
+                max-width: 560px;
+                margin: 0 auto;
+                background: #f9faff;
+                border-radius: 12px;
+                padding: 32px;
+                box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+            }
+
+            .form-card h1 {
+                font-size: 28px;
+                margin-bottom: 12px;
+            }
+
+            .form-description {
+                color: #666;
+                text-align: center;
+                margin-bottom: 24px;
+                line-height: 1.6;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #4a4a68;
+            }
+
+            input[type="email"],
+            input[type="password"],
+            input[type="text"],
+            input[type="file"] {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #dde2ff;
+                border-radius: 6px;
+                font-size: 15px;
+                transition: border-color 0.3s;
+            }
+
+            input:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            }
+
+            .password-toggle {
+                position: relative;
+            }
+
+            .password-toggle button {
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                border: none;
+                background: none;
+                cursor: pointer;
+                color: #667eea;
+                font-size: 14px;
+            }
+
+            .helper-text {
+                font-size: 12px;
+                color: #888;
+                margin-top: 6px;
+            }
+
+            .error-list {
+                background: #ffe8e8;
+                border: 1px solid #ff9b9b;
+                color: #b40000;
+                padding: 16px 20px;
+                border-radius: 8px;
+                margin-bottom: 24px;
+            }
+
+            .error-list li {
+                margin-left: 18px;
+                line-height: 1.6;
+            }
+
+            .success-message {
+                background: #e7f9f0;
+                border: 1px solid #7bd4a7;
+                color: #2f855a;
+                padding: 16px 20px;
+                border-radius: 8px;
+                margin-bottom: 24px;
+                text-align: center;
+            }
+
+            .actions {
+                text-align: center;
+                margin-top: 24px;
+            }
+
+            .link-secondary {
+                margin-top: 12px;
+                display: inline-block;
+                color: #666;
+            }
+
+            @media (max-width: 600px) {
+                .form-card {
+                    padding: 24px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="form-card">
+                <h1>ユーザー登録</h1>
+                <p class="form-description">
+                    ひらめきリレーに参加するためのアカウントを作成しましょう。<br>
+                    メールアドレスとパスワードを登録すると、マイページやガチャ履歴が使えるようになります。
+                </p>
+
+                {% if success_message %}
+                    <div class="success-message">
+                        {{ success_message }}<br>
+                        ひとまずトップページに戻ってサービスを体験してみましょう。
+                    </div>
+                {% endif %}
+
+                {% if errors %}
+                    <div class="error-list">
+                        <strong>入力内容を確認してください:</strong>
+                        <ul>
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="user_id">ユーザーID<span style="color:#ff5a5a;">*</span></label>
+                        <input type="text" id="user_id" name="user_id" value="{{ form_data.user_id }}" pattern="@[A-Za-z0-9_-]+" maxlength="32" placeholder="@username" required>
+                        <p class="helper-text">先頭の@から入力してください。（使用可能文字: 英数字・ハイフン・アンダースコア）</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nickname">ニックネーム<span style="color:#ff5a5a;">*</span></label>
+                        <input type="text" id="nickname" name="nickname" value="{{ form_data.nickname }}" maxlength="32" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">メールアドレス<span style="color:#ff5a5a;">*</span></label>
+                        <input type="email" id="email" name="email" value="{{ form_data.email }}" placeholder="example@domain.com" required>
+                        <p class="helper-text">ログインIDとして利用します。受信可能なアドレスをご入力ください。</p>
+                    </div>
+
+                    <div class="form-group password-toggle">
+                        <label for="password">パスワード<span style="color:#ff5a5a;">*</span></label>
+                        <input type="password" id="password" name="password" minlength="8" placeholder="8文字以上で入力" required>
+                        <button type="button" data-target="password">表示</button>
+                        <p class="helper-text">英数字・記号の組み合わせをおすすめします。</p>
+                    </div>
+
+                    <div class="form-group password-toggle">
+                        <label for="confirm_password">パスワード（確認用）<span style="color:#ff5a5a;">*</span></label>
+                        <input type="password" id="confirm_password" name="confirm_password" minlength="8" placeholder="もう一度入力" required>
+                        <button type="button" data-target="confirm_password">表示</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="icon">アイコン画像（任意）</label>
+                        <input type="file" id="icon" name="icon" accept="image/png,image/jpeg,image/gif">
+                        <p class="helper-text">正方形の画像だときれいに表示されます。最大3MB程度を目安にしてください。</p>
+                    </div>
+
+                    <div class="actions">
+                        <input type="submit" value="登録する" class="button">
+                        <div class="link-secondary">
+                            <a href="{{ url_for('index') }}">トップページに戻る</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            document.querySelectorAll('.password-toggle button').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) {
+                        return;
+                    }
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.textContent = '非表示';
+                    } else {
+                        input.type = 'password';
+                        this.textContent = '表示';
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
+

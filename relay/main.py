@@ -2,9 +2,17 @@ from relay import app
 from flask import render_template, request, redirect, url_for
 from relay.db import DATABASE
 import sqlite3
-from relay.db import fetch_random_item
+from relay.db import (
+    fetch_random_item,
+    get_user_by_email,
+    get_user_by_user_id,
+    insert_user,
+)
 import uuid
 from datetime import datetime
+import os
+from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 
 @app.route('/')
 def index():
@@ -35,8 +43,8 @@ def form():
         'form.html'
     )
 
-@app.route('/register', methods=['POST'])
-def register():
+@app.route('/post', methods=['POST'])
+def post():
     title = request.form['title']
     detail = request.form['detail']
     category = request.form['category']
@@ -51,6 +59,102 @@ def register():
     con.close()
 
     return redirect(url_for('index'))
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    errors = []
+    success_message = None
+
+    if request.method == 'GET' and request.args.get('success') == '1':
+        success_message = 'ユーザー登録が完了しました。ログイン機能は今後追加予定です。'
+
+    form_data = {
+        'user_id': request.form.get('user_id', '@').strip() if request.method == 'POST' else '@',
+        'nickname': request.form.get('nickname', '').strip() if request.method == 'POST' else '',
+        'email': request.form.get('email', '').strip() if request.method == 'POST' else ''
+    }
+
+    if request.method == 'POST':
+        raw_user_id = None
+        user_id_input = form_data['user_id']
+        nickname = form_data['nickname']
+        email = form_data['email']
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        icon_file = request.files.get('icon')
+
+        if not user_id_input:
+            errors.append('ユーザーIDを入力してください。')
+        elif not user_id_input.startswith('@'):
+            errors.append('ユーザーIDは先頭に@を付けて入力してください。')
+        elif len(user_id_input) == 1:
+            errors.append('ユーザーIDが短すぎます。@の後に文字を入力してください。')
+        else:
+            raw_user_id = user_id_input[1:].strip()
+            if not raw_user_id:
+                errors.append('ユーザーIDが短すぎます。@の後に文字を入力してください。')
+            elif len(raw_user_id) > 31:
+                errors.append('ユーザーIDは31文字以内で入力してください。')
+            elif not raw_user_id.replace('_', '').replace('-', '').isalnum():
+                errors.append('ユーザーIDは英数字と-_のみ使用できます。')
+            else:
+                existing_user_id = get_user_by_user_id(raw_user_id)
+                if existing_user_id:
+                    errors.append('このユーザーIDは既に利用されています。')
+
+        if not nickname:
+            errors.append('ニックネームを入力してください。')
+
+        if not email:
+            errors.append('メールアドレスを入力してください。')
+        elif '@' not in email or '.' not in email:
+            errors.append('正しい形式のメールアドレスを入力してください。')
+
+        if not password:
+            errors.append('パスワードを入力してください。')
+        elif len(password) < 8:
+            errors.append('パスワードは8文字以上で入力してください。')
+        elif password != confirm_password:
+            errors.append('パスワードと確認用パスワードが一致しません。')
+
+        existing_user = get_user_by_email(email) if email else None
+        if existing_user:
+            errors.append('このメールアドレスは既に登録されています。')
+
+        icon_path = None
+        icon_candidate = None
+        if icon_file and icon_file.filename:
+            filename = secure_filename(icon_file.filename)
+            _, ext = os.path.splitext(filename)
+            allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif'}
+            if ext.lower() not in allowed_extensions:
+                errors.append('アイコン画像はPNG/JPG/GIF形式のみアップロードできます。')
+            else:
+                icon_candidate = (icon_file, ext.lower())
+
+        if not errors:
+            if icon_candidate:
+                uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+                os.makedirs(uploads_dir, exist_ok=True)
+                stored_filename = f"{uuid.uuid4().hex}{icon_candidate[1]}"
+                icon_stream, _ = icon_candidate
+                icon_stream.stream.seek(0)
+                icon_stream.save(os.path.join(uploads_dir, stored_filename))
+                icon_path = os.path.join('uploads', stored_filename)
+
+            user_id = raw_user_id if raw_user_id and not errors else None
+            password_hash = generate_password_hash(password)
+            created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            insert_user(user_id, nickname, password_hash, email, icon_path, created_at)
+            return redirect(url_for('signup', success='1'))
+
+    return render_template(
+        'signup.html',
+        errors=errors,
+        form_data=form_data,
+        success_message=success_message
+    )
 
 # ここからガチャ機能
 @app.route('/gacha')
