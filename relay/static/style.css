@@ -87,6 +87,53 @@ form {
     margin: 30px 0;
 }
 
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.form-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    text-align: left;
+    font-size: 28px;
+    color: #667eea;
+    font-weight: 700;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.form-nav {
+    display: flex;
+    gap: 20px;
+}
+
+.form-nav a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.form-nav a:hover {
+    background-color: #f0f0ff;
+    color: #764ba2;
+}
+
 form table {
     margin: 0;
 }

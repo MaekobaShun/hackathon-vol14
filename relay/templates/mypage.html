@@ -12,14 +12,13 @@
             <div class="header">
                 <h1>
                     <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
-                    ひらめきリレー
+                    マイページ
                 </h1>
                 <nav class="nav-links">
                     <a href="{{ url_for('index') }}">ホーム</a>
                     <a href="{{ url_for('form') }}">投稿</a>
                     <a href="{{ url_for('gacha') }}">ガチャ</a>
-                    <a href="{{ url_for('login') }}">ログイン</a>
-                    <a href="{{ url_for('signup') }}">ユーザー登録</a>
+                    <a href="{{ url_for('mypage') }}">マイページ</a>
                 </nav>
             </div>
 
@@ -42,16 +41,6 @@
                     </div>
                 </div>
             </div>
-
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
