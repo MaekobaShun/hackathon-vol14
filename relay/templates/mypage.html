@@ -35,10 +35,21 @@
                             <h2>{{ user.nickname }}</h2>
                             <p class="profile-userid">@{{ user.user_id }}</p>
                             <p class="profile-date">登録日: {{ user.created_at }}</p>
+                            <button type="button" class="profile-edit-trigger" id="profile-edit-open">プロフィールを編集</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <div class="content-section">
                 <!-- タブナビゲーション -->
@@ -130,10 +141,37 @@
                 </div>
             </div>
 
-            <div class="button-area">
-                <a href="{{ url_for('form') }}" class="button-link">💡 新しいアイデアを投稿する</a>
-                <a href="{{ url_for('gacha') }}" class="button-link secondary">🎰 ガチャを回す</a>
+            <div class="profile-edit-panel" id="profile-edit-panel" aria-hidden="true">
+                <div class="profile-edit-panel__content">
+                    <div class="profile-edit-panel__header">
+                        <h3>プロフィール編集</h3>
+                        <button type="button" class="profile-edit-close" id="profile-edit-close" aria-label="閉じる">×</button>
+                    </div>
+                    <form class="profile-edit-form" method="post" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                        <div class="profile-edit-field">
+                            <label for="nickname">ニックネーム</label>
+                            <input type="text" id="nickname" name="nickname" value="{{ user.nickname }}" maxlength="32" required>
+                        </div>
+                        <div class="profile-edit-field">
+                            <label for="icon">アイコン画像</label>
+                            <input type="file" id="icon" name="icon" accept="image/png,image/jpeg,image/gif">
+                            <p class="profile-edit-note">PNG/JPG/GIF（2MB程度まで推奨）</p>
+                        </div>
+                        {% if user.icon_path %}
+                        <div class="profile-edit-field profile-edit-checkbox">
+                            <label>
+                                <input type="checkbox" name="remove_icon" value="1">
+                                現在のアイコンを削除する
+                            </label>
+                        </div>
+                        {% endif %}
+                        <div class="profile-edit-actions">
+                            <button type="submit" class="profile-edit-button">変更を保存</button>
+                        </div>
+                    </form>
+                </div>
             </div>
+
         </div>
 
         <script>
@@ -141,6 +179,9 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const tabButtons = document.querySelectorAll('.tab-button');
                 const tabContents = document.querySelectorAll('.tab-content');
+                const editOpenButton = document.getElementById('profile-edit-open');
+                const editPanel = document.getElementById('profile-edit-panel');
+                const editCloseButton = document.getElementById('profile-edit-close');
 
                 tabButtons.forEach(button => {
                     button.addEventListener('click', function() {
@@ -156,6 +197,36 @@
                         // 選択されたタブコンテンツを表示
                         document.getElementById(targetTab + '-tab').classList.add('active');
                     });
+                });
+
+                const openEditPanel = () => {
+                    editPanel.classList.add('open');
+                    editPanel.setAttribute('aria-hidden', 'false');
+                };
+
+                const closeEditPanel = () => {
+                    editPanel.classList.remove('open');
+                    editPanel.setAttribute('aria-hidden', 'true');
+                };
+
+                if (editOpenButton) {
+                    editOpenButton.addEventListener('click', openEditPanel);
+                }
+
+                if (editCloseButton) {
+                    editCloseButton.addEventListener('click', closeEditPanel);
+                }
+
+                editPanel.addEventListener('click', (event) => {
+                    if (event.target === editPanel) {
+                        closeEditPanel();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && editPanel.classList.contains('open')) {
+                        closeEditPanel();
+                    }
                 });
             });
         </script>
