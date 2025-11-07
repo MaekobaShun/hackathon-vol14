@@ -29,7 +29,21 @@ def login_required(view_func):
 @app.route('/')
 def index():
     con = sqlite3.connect(DATABASE)
-    db_items = con.execute("SELECT idea_id, title, detail, category, user_id, created_at FROM ideas ORDER BY created_at DESC").fetchall()
+    db_items = con.execute(
+        """
+        SELECT 
+            i.idea_id,
+            i.title,
+            i.detail,
+            i.category,
+            i.user_id,
+            i.created_at,
+            u.nickname
+        FROM ideas i
+        LEFT JOIN mypage u ON i.user_id = u.user_id
+        ORDER BY i.created_at DESC
+        """
+    ).fetchall()
     con.close()
 
     items = []
@@ -41,7 +55,8 @@ def index():
             'detail': row[2],
             'category': row[3],
             'user_id': row[4],
-            'created_at': row[5]
+            'created_at': row[5],
+            'nickname': row[6]
         })
 
     return render_template(
@@ -50,6 +65,7 @@ def index():
     )
 
 @app.route('/form')
+@login_required
 def form():
     return render_template(
         'form.html'
@@ -57,13 +73,16 @@ def form():
 
 @app.route('/post', methods=['POST'])
 def post():
+    if 'user_id' not in session:
+        return redirect(url_for('login', next=url_for('form')))
+
     title = request.form['title']
     detail = request.form['detail']
     category = request.form['category']
 
     con = sqlite3.connect(DATABASE)
     idea_id = str(uuid.uuid4())
-    user_id = ''  # 一時的に空文字列（後で認証機能を追加する場合に修正）
+    user_id = session['user_id']
     created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     con.execute("INSERT INTO ideas VALUES (?, ?, ?, ?, ?, ?)", 
                 [idea_id, title, detail, category, user_id, created_at])
@@ -176,7 +195,7 @@ def login():
         'identifier': request.form.get('identifier', '').strip() if request.method == 'POST' else ''
     }
 
-    next_url = request.args.get('next')
+    next_url = request.args.get('next') or request.form.get('next')
 
     if request.method == 'POST':
         identifier = form_data['identifier']
@@ -225,8 +244,16 @@ def login():
     return render_template(
         'login.html',
         errors=errors,
-        form_data=form_data
+        form_data=form_data,
+        next_url=next_url
     )
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 # ここからガチャ機能
 @app.route('/gacha')

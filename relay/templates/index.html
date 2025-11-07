@@ -11,6 +11,23 @@
             <h1>ひらめきリレー</h1>
             <h2>みんなのアイデアを見てみましょう</h2>
 
+            {% if session.get('user_id') %}
+                <div class="status">
+                    <p>ログイン中: <strong>{{ session.get('nickname') }}</strong> (@{{ session.get('user_id') }})</p>
+                    <p>
+                        <a href="{{ url_for('mypage') }}">マイページ</a> ｜
+                        <a href="{{ url_for('logout') }}">ログアウト</a>
+                    </p>
+                </div>
+            {% else %}
+                <div class="status">
+                    <p>
+                        <a href="{{ url_for('login') }}">🔐 ログインする</a> ｜
+                        <a href="{{ url_for('signup') }}">👤 ユーザー登録はこちら</a>
+                    </p>
+                </div>
+            {% endif %}
+
             {% if items == [] %}
                 <p>まだ投稿されたアイデアがありません。</p>
             {% else %}
@@ -19,6 +36,8 @@
                         <th>タイトル</th>
                         <th>詳細</th>
                         <th>カテゴリ</th>
+                        <th>投稿者</th>
+                        <th>投稿日時</th>
                     </tr>
 
                     {% for item in items %}
@@ -26,19 +45,35 @@
                             <td><strong>{{ item['title'] }}</strong></td>
                             <td>{{ item['detail'] }}</td>
                             <td><span style="background: #e8e8ff; padding: 5px 10px; border-radius: 4px; font-size: 14px;">{{ item['category'] }}</span></td>
+                            <td>
+                                {% if item['nickname'] %}
+                                    {{ item['nickname'] }} (@{{ item['user_id'] }})
+                                {% elif item['user_id'] %}
+                                    @{{ item['user_id'] }}
+                                {% else %}
+                                    未ログイン投稿
+                                {% endif %}
+                            </td>
+                            <td>{{ item['created_at'] }}</td>
                         </tr>
                     {% endfor %}
                 </table>
             {% endif %}
             <div class="button-area">
-                <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
+                    <br><br>
+                    <a href="{{ url_for('mypage') }}">👤 マイページを見る</a>
+                    <br><br>
+                    <a href="{{ url_for('logout') }}">🚪 ログアウトする</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">🔐 ログインする</a>
+                    <br><br>
+                    <a href="{{ url_for('signup') }}">👤 ユーザー登録はこちら</a>
+                {% endif %}
                 <br><br>
                 <!-- ガチャへのリンク-->
                 <a href="{{ url_for('gacha') }}">💡 ガチャを回してひらめきをゲット！</a>
-                <br><br>
-                <a href="{{ url_for('login') }}">🔐 ログインする</a>
-                <br><br>
-                <a href="{{ url_for('signup') }}">👤 ユーザー登録はこちら</a>
             </div>
         </div>
     </body>

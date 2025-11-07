@@ -106,6 +106,7 @@
                 {% endif %}
 
                 <form method="post">
+                    <input type="hidden" name="next" value="{{ next_url or '' }}">
                     <div class="form-group">
                         <label for="identifier">ユーザーID または メールアドレス</label>
                         <input type="text" id="identifier" name="identifier" value="{{ form_data.identifier }}" placeholder="@username または user@example.com" required>
