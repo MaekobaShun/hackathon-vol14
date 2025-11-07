@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ idea.title }} - 投稿詳細</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='mypage.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="form-header">
+                <h1>
+                    <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
+                    投稿詳細
+                </h1>
+                <nav class="form-nav">
+                    <a href="{{ url_for('index') }}">ホーム</a>
+                    <a href="{{ url_for('form') }}">投稿</a>
+                    <a href="{{ url_for('gacha') }}">ガチャ</a>
+                    <a href="{{ url_for('mypage') }}">マイページ</a>
+                </nav>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <article class="post-detail">
+                <header class="post-detail__header">
+                    <div class="post-detail__title-block">
+                        <h2 class="post-detail__title">{{ idea.title }}</h2>
+                        <div class="post-detail__meta">
+                            <span class="post-detail__category">{{ idea.category }}</span>
+                            <span class="post-detail__date">{{ idea.created_at }}</span>
+                        </div>
+                    </div>
+                </header>
+                <section class="post-detail__body">
+                    <p>{{ idea.detail | replace('\n', '<br>') | safe }}</p>
+                </section>
+                <footer class="post-detail__footer">
+                    <a href="{{ url_for('mypage') }}" class="button-link">← マイページに戻る</a>
+                </footer>
+            </article>
+        </div>
+    </body>
+</html>
+

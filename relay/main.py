@@ -68,8 +68,7 @@ def delete_icon_file(icon_path):
 
 
 def get_current_user_id():
-    # TODO: 認証機能が実装されたらセッションから取得する
-    return 'user_001'
+    return session.get('user_id')
 
 
 @app.route('/')
@@ -173,6 +172,52 @@ def delete_idea(idea_id):
 
     flash('投稿を削除しました。')
     return redirect(url_for('mypage'))
+
+
+@app.route('/posts/<idea_id>')
+@login_required
+def post_view(idea_id):
+    user_id = session['user_id']
+
+    with sqlite3.connect(DATABASE) as con:
+        row = con.execute(
+            """
+            SELECT 
+                i.idea_id,
+                i.title,
+                i.detail,
+                i.category,
+                i.created_at,
+                i.user_id,
+                u.nickname,
+                u.icon_path
+            FROM ideas i
+            LEFT JOIN mypage u ON i.user_id = u.user_id
+            WHERE i.idea_id = ?
+            """,
+            (idea_id,)
+        ).fetchone()
+
+    if not row:
+        flash('投稿が見つかりませんでした。')
+        return redirect(url_for('mypage'))
+
+    if row[5] != user_id:
+        flash('この投稿を表示する権限がありません。')
+        return redirect(url_for('mypage'))
+
+    idea = {
+        'idea_id': row[0],
+        'title': row[1],
+        'detail': row[2],
+        'category': row[3],
+        'created_at': row[4],
+        'user_id': row[5],
+        'nickname': row[6],
+        'icon_path': row[7],
+    }
+
+    return render_template('post_view.html', idea=idea)
 
 
 @app.route('/signup', methods=['GET', 'POST'])

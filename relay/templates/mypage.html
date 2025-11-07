@@ -76,7 +76,7 @@
                     {% else %}
                         <div class="ideas-grid">
                             {% for idea in ideas %}
-                            <div class="idea-card">
+                            <div class="idea-card" role="button" tabindex="0" data-detail-url="{{ url_for('post_view', idea_id=idea.idea_id) }}">
                                 <div class="idea-header">
                                     <h4>{{ idea.title }}</h4>
                                     <span class="idea-category">{{ idea.category }}</span>
@@ -84,7 +84,7 @@
                                 <p class="idea-detail">{{ idea.detail }}</p>
                                 <div class="idea-footer">
                                     <span class="idea-date">{{ idea.created_at }}</span>
-                                    <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form" onsubmit="return confirm('この投稿を削除しますか？この操作は取り消せません。');">
+                                    <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form">
                                         <button type="submit" class="idea-delete-button">削除</button>
                                     </form>
                                 </div>
@@ -186,6 +186,7 @@
                 const editOpenButton = document.getElementById('profile-edit-open');
                 const editPanel = document.getElementById('profile-edit-panel');
                 const editCloseButton = document.getElementById('profile-edit-close');
+                const ideaCards = document.querySelectorAll('.idea-card[role="button"]');
 
                 tabButtons.forEach(button => {
                     button.addEventListener('click', function() {
@@ -230,6 +231,41 @@
                 document.addEventListener('keydown', (event) => {
                     if (event.key === 'Escape' && editPanel.classList.contains('open')) {
                         closeEditPanel();
+                    }
+                });
+
+                const navigateToDetail = (card) => {
+                    const url = card.dataset.detailUrl;
+                    if (url) {
+                        window.location.href = url;
+                    }
+                };
+
+                ideaCards.forEach((card) => {
+                    card.addEventListener('click', () => navigateToDetail(card));
+                    card.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            navigateToDetail(card);
+                        }
+                    });
+
+                    const deleteForm = card.querySelector('.idea-delete-form');
+                    if (deleteForm) {
+                        deleteForm.addEventListener('click', (event) => event.stopPropagation());
+                        deleteForm.addEventListener('keydown', (event) => event.stopPropagation());
+                        deleteForm.addEventListener('submit', (event) => {
+                            event.stopPropagation();
+                            if (!confirm('この投稿を削除しますか？この操作は取り消せません。')) {
+                                event.preventDefault();
+                            }
+                        });
+                    }
+
+                    const deleteButton = card.querySelector('.idea-delete-button');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', (event) => event.stopPropagation());
+                        deleteButton.addEventListener('keydown', (event) => event.stopPropagation());
                     }
                 });
             });
