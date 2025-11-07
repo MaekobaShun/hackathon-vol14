@@ -309,6 +309,8 @@ h1 {
 .idea-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
     padding-top: 12px;
     border-top: 1px solid #f0f0f0;
 }
@@ -316,6 +318,42 @@ h1 {
 .idea-date {
     font-size: 12px;
     color: #999;
+}
+
+.idea-delete-form {
+    margin: 0;
+}
+
+.idea-delete-button {
+    background: #f5576c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.idea-delete-button:hover {
+    background: #d93a50;
+    transform: translateY(-1px);
+}
+
+.flash-messages {
+    margin: 20px 0;
+    padding: 15px 20px;
+    border-radius: 8px;
+    background: #f5f0ff;
+    border: 1px solid #d9c9ff;
+    color: #5a34a5;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.flash-messages p {
+    margin: 0;
 }
 
 /* ガチャリスト */

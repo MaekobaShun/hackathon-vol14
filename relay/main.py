@@ -1,5 +1,5 @@
 from relay import app
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, flash
 from relay.db import DATABASE
 import sqlite3
 from relay.db import (
@@ -10,10 +10,24 @@ from relay.db import (
 )
 import uuid
 from datetime import datetime
+import unicodedata
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
+
+MAX_TITLE_LENGTH = 60
+MAX_POST_LENGTH = 280
+
+
+def calculate_text_length(text):
+    length = 0
+    for ch in text:
+        if unicodedata.east_asian_width(ch) in ('F', 'W'):
+            length += 2
+        else:
+            length += 1
+    return length
 
 
 def login_required(view_func):
@@ -81,6 +95,18 @@ def post():
     detail = request.form['detail']
     category = request.form['category']
 
+    if calculate_text_length(title) > MAX_TITLE_LENGTH:
+        flash(
+            f'タイトルは全角{MAX_TITLE_LENGTH // 2}文字（半角{MAX_TITLE_LENGTH}文字）以内で入力してください。'
+        )
+        return redirect(url_for('form'))
+
+    if calculate_text_length(detail) > MAX_POST_LENGTH:
+        flash(
+            f'アイデアの詳細は全角{MAX_POST_LENGTH // 2}文字（半角{MAX_POST_LENGTH}文字）以内で入力してください。'
+        )
+        return redirect(url_for('form'))
+
     con = sqlite3.connect(DATABASE)
     idea_id = str(uuid.uuid4())
     user_id = session['user_id']
@@ -91,6 +117,30 @@ def post():
     con.close()
 
     return redirect(url_for('index'))
+
+
+@app.route('/ideas/<idea_id>/delete', methods=['POST'])
+@login_required
+def delete_idea(idea_id):
+    user_id = session['user_id']
+
+    with sqlite3.connect(DATABASE) as con:
+        cur = con.cursor()
+        idea_row = cur.execute(
+            "SELECT user_id FROM ideas WHERE idea_id = ?",
+            (idea_id,)
+        ).fetchone()
+
+        if not idea_row or idea_row[0] != user_id:
+            flash('指定した投稿を削除できません。')
+            return redirect(url_for('mypage'))
+
+        cur.execute("DELETE FROM gacha_result WHERE idea_id = ?", (idea_id,))
+        cur.execute("DELETE FROM ideas WHERE idea_id = ?", (idea_id,))
+        con.commit()
+
+    flash('投稿を削除しました。')
+    return redirect(url_for('mypage'))
 
 
 @app.route('/signup', methods=['GET', 'POST'])

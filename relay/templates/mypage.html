@@ -42,6 +42,16 @@
                 </div>
             </div>
 
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
             <div class="content-section">
                 <!-- タブナビゲーション -->
                 <div class="tabs">
@@ -74,6 +84,9 @@
                                 <p class="idea-detail">{{ idea.detail }}</p>
                                 <div class="idea-footer">
                                     <span class="idea-date">{{ idea.created_at }}</span>
+                                    <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form" onsubmit="return confirm('この投稿を削除しますか？この操作は取り消せません。');">
+                                        <button type="submit" class="idea-delete-button">削除</button>
+                                    </form>
                                 </div>
                             </div>
                             {% endfor %}
