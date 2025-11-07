@@ -27,6 +27,7 @@ def login_required(view_func):
     return wrapper
 
 @app.route('/')
+@login_required
 def index():
     con = sqlite3.connect(DATABASE)
     db_items = con.execute(
@@ -257,17 +258,20 @@ def logout():
 
 # ここからガチャ機能
 @app.route('/gacha')
+@login_required
 def gacha():
     return render_template("gacha.html")
 
 # ランダムに1つのアイテムを表示するルート
 @app.route('/result')
+@login_required
 def result():
     item = fetch_random_item()
     return render_template("result.html", item=item)
 
 # ガチャを回して結果ページにリダイレクトするルート
 @app.route('/spin')
+@login_required
 def spin():
     return redirect(url_for('result'))
 # ここまでガチャ機能
