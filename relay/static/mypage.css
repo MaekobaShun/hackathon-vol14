@@ -28,6 +28,33 @@ body {
     margin: 0;
 }
 
+.page-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+#logout-form {
+    margin: 0;
+}
+
+.logout-button {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.logout-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(240, 147, 251, 0.3);
+}
+
 /* コンテナ */
 .container {
     max-width: 1200px;

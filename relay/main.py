@@ -223,10 +223,6 @@ def post_view(idea_id):
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     errors = []
-    success_message = None
-
-    if request.method == 'GET' and request.args.get('success') == '1':
-        success_message = 'ユーザー登録が完了しました。ログイン機能は今後追加予定です。'
 
     form_data = {
         'user_id': request.form.get('user_id', '@').strip() if request.method == 'POST' else '@',
@@ -306,13 +302,18 @@ def signup():
             password_hash = generate_password_hash(password)
             created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             insert_user(user_id, nickname, password_hash, email, icon_path, created_at)
-            return redirect(url_for('signup', success='1'))
+            session.clear()
+            session.permanent = True
+            session['user_id'] = user_id
+            session['nickname'] = nickname
+            session['email'] = email
+            session['icon_path'] = icon_path
+            return redirect(url_for('index'))
 
     return render_template(
         'signup.html',
         errors=errors,
-        form_data=form_data,
-        success_message=success_message
+        form_data=form_data
     )
 
 
@@ -377,7 +378,7 @@ def login():
     )
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     session.clear()
