@@ -1,5 +1,5 @@
 from relay import app
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, session
 from relay.db import DATABASE
 import sqlite3
 from relay.db import (
@@ -11,8 +11,20 @@ from relay.db import (
 import uuid
 from datetime import datetime
 import os
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from functools import wraps
+
+
+def login_required(view_func):
+    @wraps(view_func)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            next_url = request.url
+            return redirect(url_for('login', next=next_url))
+        return view_func(*args, **kwargs)
+
+    return wrapper
 
 @app.route('/')
 def index():
@@ -156,6 +168,66 @@ def signup():
         success_message=success_message
     )
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    errors = []
+    form_data = {
+        'identifier': request.form.get('identifier', '').strip() if request.method == 'POST' else ''
+    }
+
+    next_url = request.args.get('next')
+
+    if request.method == 'POST':
+        identifier = form_data['identifier']
+        password = request.form.get('password', '')
+
+        if not identifier:
+            errors.append('ユーザーIDまたはメールアドレスを入力してください。')
+
+        if not password:
+            errors.append('パスワードを入力してください。')
+
+        user_row = None
+
+        if identifier and not errors:
+            if identifier.startswith('@'):
+                candidate_id = identifier[1:].strip()
+                if candidate_id:
+                    user_row = get_user_by_user_id(candidate_id)
+            else:
+                user_row = get_user_by_email(identifier)
+                if not user_row:
+                    candidate_id = identifier.strip()
+                    if candidate_id:
+                        user_row = get_user_by_user_id(candidate_id)
+
+            if not user_row:
+                errors.append('該当するユーザーが見つかりませんでした。')
+
+        if not errors and user_row:
+            stored_hash = user_row[2]
+            if not check_password_hash(stored_hash, password):
+                errors.append('ユーザーIDまたはパスワードが正しくありません。')
+
+        if not errors and user_row:
+            session.clear()
+            session.permanent = True
+            session['user_id'] = user_row[0]
+            session['nickname'] = user_row[1]
+            session['email'] = user_row[3]
+            session['icon_path'] = user_row[4]
+
+            if next_url:
+                return redirect(next_url)
+            return redirect(url_for('index'))
+
+    return render_template(
+        'login.html',
+        errors=errors,
+        form_data=form_data
+    )
+
 # ここからガチャ機能
 @app.route('/gacha')
 def gacha():
@@ -175,108 +247,95 @@ def spin():
 
 # マイページ
 @app.route('/mypage')
+@login_required
 def mypage():
-    # テスト用：user_id = 'test_user_001' で固定
-    # 実際の実装では、セッションからuser_idを取得
-    user_id = 'user_001'
-    
+    user_id = session['user_id']
+
     con = sqlite3.connect(DATABASE)
-    
-    # ユーザー情報を取得
+
     user_row = con.execute(
         "SELECT user_id, nickname, email, icon_path, created_at FROM mypage WHERE user_id = ?",
         (user_id,)
     ).fetchone()
-    
+
     if not user_row:
-        # ユーザーが存在しない場合はダミーデータを返す（開発用）
-        user = {
-            'user_id': user_id,
-            'nickname': 'テストユーザー',
-            'email': 'test@example.com',
-            'icon_path': None,
-            'created_at': '2024-01-01 00:00:00'
-        }
-        ideas = []
-        gacha_results = []
-        revival_notifications = []
-    else:
-        user = {
-            'user_id': user_row[0],
-            'nickname': user_row[1],
-            'email': user_row[2],
-            'icon_path': user_row[3],
-            'created_at': user_row[4]
-        }
-        
-        # ユーザーが投稿したアイデアを取得
-        idea_rows = con.execute(
-            "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
-            (user_id,)
-        ).fetchall()
-        
-        ideas = []
-        for row in idea_rows:
-            ideas.append({
-                'idea_id': row[0],
-                'title': row[1],
-                'detail': row[2],
-                'category': row[3],
-                'created_at': row[4]
-            })
-        
-        # ガチャ履歴を取得（ideasテーブルとJOIN）
-        gacha_rows = con.execute("""
-            SELECT gr.result_id, gr.created_at, i.title, i.detail, i.category
-            FROM gacha_result gr
-            JOIN ideas i ON gr.idea_id = i.idea_id
-            WHERE gr.user_id = ?
-            ORDER BY gr.created_at DESC
-        """, (user_id,)).fetchall()
-        
-        gacha_results = []
-        for row in gacha_rows:
-            gacha_results.append({
-                'result_id': row[0],
-                'created_at': row[1],
-                'idea_title': row[2],
-                'detail': row[3],
-                'category': row[4]
-            })
-        
-        # 復活通知履歴を取得（自分のアイデアが他のユーザーにガチャで引かれた履歴）
-        revival_rows = con.execute("""
-            SELECT 
-                gr.result_id,
-                gr.created_at,
-                gr.user_id as picker_id,
-                u.nickname as picker_nickname,
-                i.idea_id,
-                i.title,
-                i.detail,
-                i.category
-            FROM gacha_result gr
-            JOIN ideas i ON gr.idea_id = i.idea_id
-            LEFT JOIN mypage u ON gr.user_id = u.user_id
-            WHERE i.user_id = ? AND gr.user_id != ?
-            ORDER BY gr.created_at DESC
-        """, (user_id, user_id)).fetchall()
-        
-        revival_notifications = []
-        for row in revival_rows:
-            revival_notifications.append({
-                'result_id': row[0],
-                'created_at': row[1],
-                'picker_id': row[2],
-                'picker_nickname': row[3] if row[3] else '不明なユーザー',
-                'idea_id': row[4],
-                'idea_title': row[5],
-                'detail': row[6],
-                'category': row[7]
-            })
-    
+        con.close()
+        session.clear()
+        return redirect(url_for('login'))
+
+    user = {
+        'user_id': user_row[0],
+        'nickname': user_row[1],
+        'email': user_row[2],
+        'icon_path': user_row[3],
+        'created_at': user_row[4]
+    }
+
+    idea_rows = con.execute(
+        "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
+        (user_id,)
+    ).fetchall()
+
+    ideas = []
+    for row in idea_rows:
+        ideas.append({
+            'idea_id': row[0],
+            'title': row[1],
+            'detail': row[2],
+            'category': row[3],
+            'created_at': row[4]
+        })
+
+    gacha_rows = con.execute("""
+        SELECT gr.result_id, gr.created_at, i.title, i.detail, i.category
+        FROM gacha_result gr
+        JOIN ideas i ON gr.idea_id = i.idea_id
+        WHERE gr.user_id = ?
+        ORDER BY gr.created_at DESC
+    """, (user_id,)).fetchall()
+
+    gacha_results = []
+    for row in gacha_rows:
+        gacha_results.append({
+            'result_id': row[0],
+            'created_at': row[1],
+            'idea_title': row[2],
+            'detail': row[3],
+            'category': row[4]
+        })
+
+    revival_rows = con.execute("""
+        SELECT 
+            gr.result_id,
+            gr.created_at,
+            gr.user_id as picker_id,
+            u.nickname as picker_nickname,
+            i.idea_id,
+            i.title,
+            i.detail,
+            i.category
+        FROM gacha_result gr
+        JOIN ideas i ON gr.idea_id = i.idea_id
+        LEFT JOIN mypage u ON gr.user_id = u.user_id
+        WHERE i.user_id = ? AND gr.user_id != ?
+        ORDER BY gr.created_at DESC
+    """, (user_id, user_id)).fetchall()
+
+    revival_notifications = []
+    for row in revival_rows:
+        revival_notifications.append({
+            'result_id': row[0],
+            'created_at': row[1],
+            'picker_id': row[2],
+            'picker_nickname': row[3] if row[3] else '不明なユーザー',
+            'idea_id': row[4],
+            'idea_title': row[5],
+            'detail': row[6],
+            'category': row[7]
+        })
+
     con.close()
-    
+
     return render_template(
         'mypage.html',
         user=user,

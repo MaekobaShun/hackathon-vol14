@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ログイン - ひらめきリレー</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <style>
+            .form-card {
+                max-width: 480px;
+                margin: 0 auto;
+                background: #f9faff;
+                border-radius: 12px;
+                padding: 32px;
+                box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+            }
+
+            .form-card h1 {
+                font-size: 26px;
+                margin-bottom: 16px;
+            }
+
+            .form-description {
+                color: #666;
+                text-align: center;
+                margin-bottom: 24px;
+                line-height: 1.6;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #4a4a68;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #dde2ff;
+                border-radius: 6px;
+                font-size: 15px;
+                transition: border-color 0.3s;
+            }
+
+            input:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            }
+
+            .error-list {
+                background: #ffe8e8;
+                border: 1px solid #ff9b9b;
+                color: #b40000;
+                padding: 16px 20px;
+                border-radius: 8px;
+                margin-bottom: 24px;
+            }
+
+            .error-list li {
+                margin-left: 18px;
+                line-height: 1.6;
+            }
+
+            .actions {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .link-secondary {
+                margin-top: 12px;
+                display: inline-block;
+                color: #666;
+            }
+
+            @media (max-width: 600px) {
+                .form-card {
+                    padding: 24px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="form-card">
+                <h1>ログイン</h1>
+                <p class="form-description">
+                    ユーザーID（先頭に@）またはメールアドレスとパスワードを入力してログインしてください。
+                </p>
+
+                {% if errors %}
+                    <div class="error-list">
+                        <strong>入力内容を確認してください:</strong>
+                        <ul>
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    <div class="form-group">
+                        <label for="identifier">ユーザーID または メールアドレス</label>
+                        <input type="text" id="identifier" name="identifier" value="{{ form_data.identifier }}" placeholder="@username または user@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">パスワード</label>
+                        <input type="password" id="password" name="password" placeholder="パスワード" required>
+                    </div>
+
+                    <div class="actions">
+                        <input type="submit" value="ログイン" class="button">
+                        <div class="link-secondary">
+                            <a href="{{ url_for('signup') }}">まだアカウントをお持ちでない方はこちら</a>
+                        </div>
+                        <div class="link-secondary">
+                            <a href="{{ url_for('index') }}">トップページに戻る</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
+
