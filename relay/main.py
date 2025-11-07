@@ -15,6 +15,11 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
+import os
+from werkzeug.utils import secure_filename
+
+ALLOWED_ICON_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif'}
+MAX_NICKNAME_LENGTH = 32
 
 MAX_TITLE_LENGTH = 60
 MAX_POST_LENGTH = 280
@@ -39,6 +44,33 @@ def login_required(view_func):
         return view_func(*args, **kwargs)
 
     return wrapper
+
+
+
+def store_icon_file(icon_file, extension):
+    uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+    os.makedirs(uploads_dir, exist_ok=True)
+    stored_filename = f"{uuid.uuid4().hex}{extension}"
+    save_path = os.path.join(uploads_dir, stored_filename)
+    icon_file.stream.seek(0)
+    icon_file.save(save_path)
+    return os.path.join('uploads', stored_filename)
+
+
+def delete_icon_file(icon_path):
+    if not icon_path:
+        return
+    if not icon_path.startswith('uploads/'):
+        return
+    absolute_path = os.path.join(app.root_path, 'static', icon_path)
+    if os.path.exists(absolute_path):
+        os.remove(absolute_path)
+
+
+def get_current_user_id():
+    # TODO: 認証機能が実装されたらセッションから取得する
+    return 'user_001'
+
 
 @app.route('/')
 @login_required
@@ -327,6 +359,68 @@ def spin():
 # ここまでガチャ機能
 
 # マイページ
+@app.route('/mypage/update', methods=['POST'])
+def update_profile():
+    user_id = get_current_user_id()
+
+    nickname = request.form.get('nickname', '').strip()
+    remove_icon = request.form.get('remove_icon') == '1'
+    icon_file = request.files.get('icon')
+
+    errors = []
+
+    if not nickname:
+        errors.append('ニックネームを入力してください。')
+    elif len(nickname) > MAX_NICKNAME_LENGTH:
+        errors.append(f'ニックネームは{MAX_NICKNAME_LENGTH}文字以内で入力してください。')
+
+    icon_candidate = None
+    if icon_file and icon_file.filename:
+        filename = secure_filename(icon_file.filename)
+        _, ext = os.path.splitext(filename)
+        ext = ext.lower()
+        if ext not in ALLOWED_ICON_EXTENSIONS:
+            errors.append('アイコン画像はPNG/JPG/GIF形式のみアップロードできます。')
+        else:
+            icon_candidate = (icon_file, ext)
+
+    if errors:
+        for message in errors:
+            flash(message)
+        return redirect(url_for('mypage'))
+
+    with sqlite3.connect(DATABASE) as con:
+        cur = con.cursor()
+        current_row = cur.execute(
+            "SELECT icon_path FROM mypage WHERE user_id = ?",
+            (user_id,)
+        ).fetchone()
+
+        if not current_row:
+            flash('ユーザー情報が見つかりません。')
+            return redirect(url_for('mypage'))
+
+        current_icon_path = current_row[0]
+        new_icon_path = current_icon_path
+
+        if icon_candidate:
+            new_icon_path = store_icon_file(icon_candidate[0], icon_candidate[1])
+        elif remove_icon:
+            new_icon_path = None
+
+        cur.execute(
+            "UPDATE mypage SET nickname = ?, icon_path = ? WHERE user_id = ?",
+            (nickname, new_icon_path, user_id)
+        )
+        con.commit()
+
+    if (icon_candidate or remove_icon) and current_icon_path and current_icon_path != new_icon_path:
+        delete_icon_file(current_icon_path)
+
+    flash('プロフィールを更新しました。')
+    return redirect(url_for('mypage'))
+
+
 @app.route('/mypage')
 @login_required
 def mypage():
