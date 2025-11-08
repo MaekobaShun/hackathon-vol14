@@ -618,15 +618,6 @@ body {
     white-space: nowrap;
 }
 
-/* ガチャカード */
-.gacha-card {
-    border-left-color: rgba(236, 72, 153, 0.35);
-}
-
-.gacha-card .idea-header h4::before {
-    content: '🎰 ';
-}
-
 .gacha-badge-text {
     font-size: 0.8rem;
     color: #ec4899;

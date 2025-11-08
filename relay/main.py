@@ -205,10 +205,6 @@ def post_view(idea_id):
         flash('投稿が見つかりませんでした。')
         return redirect(url_for('mypage'))
 
-    if row[5] != user_id:
-        flash('この投稿を表示する権限がありません。')
-        return redirect(url_for('mypage'))
-
     idea = {
         'idea_id': row[0],
         'title': row[1],
@@ -397,15 +393,48 @@ def gacha():
 @app.route('/result')
 @login_required
 def result():
-    # 現在ログイン中のユーザーID を渡して、自分の投稿は除外する
-    current_user_id = session.get('user_id')
-    item = fetch_random_item(exclude_user_id=current_user_id)
-    return render_template("result.html", item=item)
+    idea = None
+    idea_id = session.pop('last_gacha_idea_id', None)
+
+    if idea_id:
+        with sqlite3.connect(DATABASE) as con:
+            idea = con.execute(
+                "SELECT idea_id, title, detail, category, user_id, created_at FROM ideas WHERE idea_id = ?",
+                (idea_id,)
+            ).fetchone()
+
+    return render_template("result.html", item=idea)
 
 # ガチャを回して結果ページにリダイレクトするルート
 @app.route('/spin')
 @login_required
 def spin():
+    current_user_id = session.get('user_id')
+    item = fetch_random_item(exclude_user_id=current_user_id)
+
+    if not item:
+        session['last_gacha_idea_id'] = None
+        flash('現在引けるアイデアがありません。')
+        return redirect(url_for('result'))
+
+    idea_id = item[0]
+    author_id = item[4]
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    with sqlite3.connect(DATABASE) as con:
+        con.execute(
+            "INSERT INTO gacha_result (result_id, user_id, idea_id, created_at) VALUES (?, ?, ?, ?)",
+            (str(uuid.uuid4()), current_user_id, idea_id, now)
+        )
+        if author_id and author_id != current_user_id:
+            con.execute(
+                "INSERT INTO revival_notify (notify_id, idea_id, author_id, picker_id, created_at) VALUES (?, ?, ?, ?, ?)",
+                (str(uuid.uuid4()), idea_id, author_id, current_user_id, now)
+            )
+        con.commit()
+
+    session['last_gacha_idea_id'] = idea_id
+
     return redirect(url_for('result'))
 # ここまでガチャ機能
 
@@ -513,7 +542,7 @@ def mypage():
         })
 
     gacha_rows = con.execute("""
-        SELECT gr.result_id, gr.created_at, i.title, i.detail, i.category
+        SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
         FROM gacha_result gr
         JOIN ideas i ON gr.idea_id = i.idea_id
         WHERE gr.user_id = ?
@@ -525,9 +554,10 @@ def mypage():
         gacha_results.append({
             'result_id': row[0],
             'created_at': row[1],
-            'idea_title': row[2],
-            'detail': row[3],
-            'category': row[4]
+            'idea_id': row[2],
+            'idea_title': row[3],
+            'detail': row[4],
+            'category': row[5]
         })
 
     revival_rows = con.execute("""

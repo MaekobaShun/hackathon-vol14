@@ -120,14 +120,13 @@
                     {% else %}
                         <div class="ideas-grid">
                             {% for result in gacha_results %}
-                            <div class="idea-card gacha-card">
+                            <div class="idea-card gacha-card" role="button" tabindex="0" data-detail-url="{{ url_for('post_view', idea_id=result.idea_id) }}">
                                 <div class="idea-header">
                                     <h4>{{ result.idea_title }}</h4>
                                     <span class="idea-category gacha-badge">{{ result.category }}</span>
                                 </div>
                                 <p class="idea-detail">{{ result.detail }}</p>
                                 <div class="idea-footer">
-                                    <span class="gacha-badge-text">🎰 ガチャで獲得</span>
                                     <span class="idea-date">{{ result.created_at }}</span>
                                 </div>
                             </div>
