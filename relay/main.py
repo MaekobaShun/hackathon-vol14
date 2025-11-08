@@ -397,7 +397,9 @@ def gacha():
 @app.route('/result')
 @login_required
 def result():
-    item = fetch_random_item()
+    # 現在ログイン中のユーザーID を渡して、自分の投稿は除外する
+    current_user_id = session.get('user_id')
+    item = fetch_random_item(exclude_user_id=current_user_id)
     return render_template("result.html", item=item)
 
 # ガチャを回して結果ページにリダイレクトするルート
