@@ -149,4 +149,5 @@ Thumbs.db
 
 ##変更
 **/__pycache__/
+**/uploads/
 

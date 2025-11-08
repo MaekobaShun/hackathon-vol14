@@ -8,16 +8,46 @@
     </head>
     <body>
         <div class="container">
-            <h1>アイデアを投稿する</h1>
-            <form method="post" action="{{ url_for('register') }}">
+            <div class="form-header">
+                <h1>
+                    <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
+                    投稿
+                </h1>
+                <nav class="form-nav">
+                    <a href="{{ url_for('index') }}">ホーム</a>
+                    <a href="{{ url_for('form') }}">投稿</a>
+                    <a href="{{ url_for('gacha') }}">ガチャ</a>
+                    <a href="{{ url_for('mypage') }}">マイページ</a>
+                </nav>
+            </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form method="post" action="{{ url_for('post') }}">
                 <table>
                     <tr>
                         <th>タイトル</th>
-                        <td><input type="text" name="title" placeholder="アイデアのタイトルを入力" required></td>
+                        <td>
+                            <input type="text" name="title" placeholder="アイデアのタイトルを入力" required>
+                            <div class="character-counter">
+                                <span id="title-count">0/60</span>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <th>詳細</th>
-                        <td><textarea name="detail" placeholder="アイデアの詳細を入力してください" required></textarea></td>
+                        <td>
+                            <textarea name="detail" id="detail" placeholder="アイデアの詳細を入力してください" required></textarea>
+                            <div class="character-counter">
+                                <span id="detail-count">0/280</span>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <th>カテゴリ</th>
@@ -43,5 +73,79 @@
                 </div>
             </form>
         </div>
+        <script>
+            (function() {
+                const fields = [
+                    {
+                        element: document.querySelector('input[name="title"]'),
+                        counter: document.getElementById('title-count'),
+                        limit: 60
+                    },
+                    {
+                        element: document.querySelector('textarea[name="detail"]'),
+                        counter: document.getElementById('detail-count'),
+                        limit: 280
+                    }
+                ];
+
+                const getCharLength = (char) => {
+                    if (/^[\u0000-\u007F]$/.test(char)) {
+                        return 1;
+                    }
+                    if (/^[\uFF61-\uFF9F]$/.test(char)) {
+                        return 1;
+                    }
+                    return 2;
+                };
+
+                const calculateLength = (text) => {
+                    let length = 0;
+                    for (const ch of text) {
+                        length += getCharLength(ch);
+                    }
+                    return length;
+                };
+
+                const truncateToLimit = (text, limit) => {
+                    let length = 0;
+                    let result = '';
+                    for (const ch of text) {
+                        const charLength = getCharLength(ch);
+                        if (length + charLength > limit) {
+                            break;
+                        }
+                        length += charLength;
+                        result += ch;
+                    }
+                    return result;
+                };
+
+                const updateCounter = (field) => {
+                    const { element, counter, limit } = field;
+                    if (!element || !counter) {
+                        return;
+                    }
+
+                    let value = element.value;
+                    let currentLength = calculateLength(value);
+
+                    if (currentLength > limit) {
+                        value = truncateToLimit(value, limit);
+                        element.value = value;
+                        currentLength = calculateLength(value);
+                    }
+
+                    counter.textContent = `${currentLength}/${limit}`;
+                };
+
+                fields.forEach((field) => {
+                    if (!field.element || !field.counter) {
+                        return;
+                    }
+                    field.element.addEventListener('input', () => updateCounter(field));
+                    updateCounter(field);
+                });
+            })();
+        </script>
     </body>
 </html>

@@ -90,3 +90,37 @@ def fetch_random_item():
     if items:
         return random.choice(items)
     return None
+
+
+def get_user_by_email(email: str):
+    con = sqlite3.connect(DATABASE)
+    cursor = con.cursor()
+    cursor.execute(
+        "SELECT user_id, nickname, password, email, icon_path, created_at FROM mypage WHERE email = ?",
+        (email,)
+    )
+    row = cursor.fetchone()
+    con.close()
+    return row
+
+
+def get_user_by_user_id(user_id: str):
+    con = sqlite3.connect(DATABASE)
+    cursor = con.cursor()
+    cursor.execute(
+        "SELECT user_id, nickname, password, email, icon_path, created_at FROM mypage WHERE user_id = ?",
+        (user_id,)
+    )
+    row = cursor.fetchone()
+    con.close()
+    return row
+
+
+def insert_user(user_id: str, nickname: str, password_hash: str, email: str, icon_path: str | None, created_at: str) -> None:
+    con = sqlite3.connect(DATABASE)
+    con.execute(
+        "INSERT INTO mypage (user_id, nickname, password, email, icon_path, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (user_id, nickname, password_hash, email, icon_path, created_at)
+    )
+    con.commit()
+    con.close()

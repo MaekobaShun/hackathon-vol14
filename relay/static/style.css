@@ -87,6 +87,123 @@ form {
     margin: 30px 0;
 }
 
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.form-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    text-align: left;
+    font-size: 28px;
+    color: #667eea;
+    font-weight: 700;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.form-nav {
+    display: flex;
+    gap: 20px;
+}
+
+.form-nav a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.form-nav a:hover {
+    background-color: #f0f0ff;
+    color: #764ba2;
+}
+
+.post-detail {
+    background: #f9f9ff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+}
+
+.post-detail__header {
+    border-bottom: 1px solid #e0e0f8;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+}
+
+
+.post-detail__title-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-detail__title {
+    font-size: 26px;
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.post-detail__meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: #667;
+    justify-content: center;
+}
+
+.post-detail__category {
+    background: #e8e8ff;
+    color: #667eea;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-weight: 600;
+}
+
+.post-detail__date {
+    color: #888;
+    display: flex;
+    align-items: center;
+}
+
+.post-detail__body p {
+    white-space: pre-wrap;
+    font-size: 18px;
+    line-height: 1.8;
+    color: #444;
+    margin: 0;
+}
+
+.post-detail__footer {
+    margin-top: 24px;
+    text-align: right;
+}
+
+.post-detail__footer .button-link {
+    margin: 0;
+}
+
 form table {
     margin: 0;
 }

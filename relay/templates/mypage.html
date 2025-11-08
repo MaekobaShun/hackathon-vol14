@@ -12,12 +12,13 @@
             <div class="header">
                 <h1>
                     <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
-                    ひらめきリレー
+                    マイページ
                 </h1>
                 <nav class="nav-links">
                     <a href="{{ url_for('index') }}">ホーム</a>
                     <a href="{{ url_for('form') }}">投稿</a>
                     <a href="{{ url_for('gacha') }}">ガチャ</a>
+                    <a href="{{ url_for('mypage') }}">マイページ</a>
                 </nav>
             </div>
 
@@ -35,10 +36,21 @@
                             <h2>{{ user.nickname }}</h2>
                             <p class="profile-userid">@{{ user.user_id }}</p>
                             <p class="profile-date">登録日: {{ user.created_at }}</p>
+                            <button type="button" class="profile-edit-trigger" id="profile-edit-open">プロフィールを編集</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <div class="content-section">
                 <!-- タブナビゲーション -->
@@ -64,7 +76,7 @@
                     {% else %}
                         <div class="ideas-grid">
                             {% for idea in ideas %}
-                            <div class="idea-card">
+                            <div class="idea-card" role="button" tabindex="0" data-detail-url="{{ url_for('post_view', idea_id=idea.idea_id) }}">
                                 <div class="idea-header">
                                     <h4>{{ idea.title }}</h4>
                                     <span class="idea-category">{{ idea.category }}</span>
@@ -72,6 +84,9 @@
                                 <p class="idea-detail">{{ idea.detail }}</p>
                                 <div class="idea-footer">
                                     <span class="idea-date">{{ idea.created_at }}</span>
+                                    <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form">
+                                        <button type="submit" class="idea-delete-button">削除</button>
+                                    </form>
                                 </div>
                             </div>
                             {% endfor %}
@@ -130,7 +145,42 @@
                 </div>
             </div>
 
+            <div class="profile-edit-panel" id="profile-edit-panel" aria-hidden="true">
+                <div class="profile-edit-panel__content">
+                    <div class="profile-edit-panel__header">
+                        <h3>プロフィール編集</h3>
+                        <button type="button" class="profile-edit-close" id="profile-edit-close" aria-label="閉じる">×</button>
+                    </div>
+                    <form class="profile-edit-form" method="post" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                        <div class="profile-edit-field">
+                            <label for="nickname">ニックネーム</label>
+                            <input type="text" id="nickname" name="nickname" value="{{ user.nickname }}" maxlength="32" required>
+                        </div>
+                        <div class="profile-edit-field">
+                            <label for="icon">アイコン画像</label>
+                            <input type="file" id="icon" name="icon" accept="image/png,image/jpeg,image/gif">
+                            <p class="profile-edit-note">PNG/JPG/GIF（2MB程度まで推奨）</p>
+                        </div>
+                        {% if user.icon_path %}
+                        <div class="profile-edit-field profile-edit-checkbox">
+                            <label>
+                                <input type="checkbox" name="remove_icon" value="1">
+                                現在のアイコンを削除する
+                            </label>
+                        </div>
+                        {% endif %}
+                        <div class="profile-edit-actions">
+                            <button type="submit" class="profile-edit-button">変更を保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
+            <footer class="page-footer">
+                <form method="post" action="{{ url_for('logout') }}" id="logout-form">
+                    <button type="submit" class="logout-button">ログアウト</button>
+                </form>
+            </footer>
         </div>
 
         <script>
@@ -138,6 +188,11 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const tabButtons = document.querySelectorAll('.tab-button');
                 const tabContents = document.querySelectorAll('.tab-content');
+                const editOpenButton = document.getElementById('profile-edit-open');
+                const editPanel = document.getElementById('profile-edit-panel');
+                const editCloseButton = document.getElementById('profile-edit-close');
+                const ideaCards = document.querySelectorAll('.idea-card[role="button"]');
+                const logoutForm = document.getElementById('logout-form');
 
                 tabButtons.forEach(button => {
                     button.addEventListener('click', function() {
@@ -154,6 +209,79 @@
                         document.getElementById(targetTab + '-tab').classList.add('active');
                     });
                 });
+
+                const openEditPanel = () => {
+                    editPanel.classList.add('open');
+                    editPanel.setAttribute('aria-hidden', 'false');
+                };
+
+                const closeEditPanel = () => {
+                    editPanel.classList.remove('open');
+                    editPanel.setAttribute('aria-hidden', 'true');
+                };
+
+                if (editOpenButton) {
+                    editOpenButton.addEventListener('click', openEditPanel);
+                }
+
+                if (editCloseButton) {
+                    editCloseButton.addEventListener('click', closeEditPanel);
+                }
+
+                editPanel.addEventListener('click', (event) => {
+                    if (event.target === editPanel) {
+                        closeEditPanel();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && editPanel.classList.contains('open')) {
+                        closeEditPanel();
+                    }
+                });
+
+                const navigateToDetail = (card) => {
+                    const url = card.dataset.detailUrl;
+                    if (url) {
+                        window.location.href = url;
+                    }
+                };
+
+                ideaCards.forEach((card) => {
+                    card.addEventListener('click', () => navigateToDetail(card));
+                    card.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            navigateToDetail(card);
+                        }
+                    });
+
+                    const deleteForm = card.querySelector('.idea-delete-form');
+                    if (deleteForm) {
+                        deleteForm.addEventListener('click', (event) => event.stopPropagation());
+                        deleteForm.addEventListener('keydown', (event) => event.stopPropagation());
+                        deleteForm.addEventListener('submit', (event) => {
+                            event.stopPropagation();
+                            if (!confirm('この投稿を削除しますか？この操作は取り消せません。')) {
+                                event.preventDefault();
+                            }
+                        });
+                    }
+
+                    const deleteButton = card.querySelector('.idea-delete-button');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', (event) => event.stopPropagation());
+                        deleteButton.addEventListener('keydown', (event) => event.stopPropagation());
+                    }
+                });
+
+                if (logoutForm) {
+                    logoutForm.addEventListener('submit', (event) => {
+                        if (!confirm('ログアウトしますか？')) {
+                            event.preventDefault();
+                        }
+                    });
+                }
             });
         </script>
     </body>
