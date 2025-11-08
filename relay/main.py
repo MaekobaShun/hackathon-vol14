@@ -104,10 +104,13 @@ def index():
             'created_at': row[5],
             'nickname': row[6]
         })
+    
+    user_name = session['nickname']
 
     return render_template(
         'index.html',
-        items=items
+        items=items,
+        user_name=user_name
     )
 
 @app.route('/form')
