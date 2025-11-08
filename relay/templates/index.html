@@ -1,41 +1,91 @@
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ひらめきリレー - アイデア投稿SNS</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
-    <body>
-        <div class="container">
-            <h1>ひらめきリレー</h1>
-            <h2>みんなのアイデアを見てみましょう</h2>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ひらめきリレー - ハブ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo-icon">💡</div>
+                <h1 class="logo-text">ひらめきリレー</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="welcome-text">ようこそ</div>
+                    <div class="user-name">ユーザーさん</div>
+                </div>
+                <!--
+                <div class="points-badge">
+                    <span class="sparkle">✨</span>
+                    <span>1250</span>
+                </div>                
+                -->
 
-            {% if items == [] %}
-                <p>まだ投稿されたアイデアがありません。</p>
-            {% else %}
-                <table>
-                    <tr>
-                        <th>タイトル</th>
-                        <th>詳細</th>
-                        <th>カテゴリ</th>
-                    </tr>
-
-                    {% for item in items %}
-                        <tr>
-                            <td><strong>{{ item['title'] }}</strong></td>
-                            <td>{{ item['detail'] }}</td>
-                            <td><span style="background: #e8e8ff; padding: 5px 10px; border-radius: 4px; font-size: 14px;">{{ item['category'] }}</span></td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% endif %}
-            <div class="button-area">
-                <a href="{{ url_for('form') }}" class="button-link">アイデアを投稿する</a>
-                <br><br>
-                <!-- ガチャへのリンク-->
-                <a href="{{ url_for('gacha') }}">💡 ガチャを回してひらめきをゲット！</a>
             </div>
         </div>
-    </body>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h2 class="main-title">何をしますか?</h2>
+            <p class="main-subtitle">あなたのひらめきで、誰かのストーリーをつなげよう</p>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="cards-grid">
+            <!-- 投稿する -->
+            <a href="{{ url_for('form') }}" class="action-card card-blue">
+                <div class="card-icon">✍️</div>
+                <h3 class="card-title">投稿する</h3>
+                <p class="card-subtitle">あなたのひらめきを共有</p>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <!-- ガチャを引く -->
+            <a href="{{ url_for('gacha') }}" class="action-card card-purple">
+                <div class="card-icon">🎲</div>
+                <h3 class="card-title">ガチャを引く</h3>
+                <p class="card-subtitle">新しい出会いを探そう</p>
+                <div class="card-arrow">→</div>
+            </a>
+
+            <!-- マイページ -->
+            <a href="{{ url_for('mypage') }}" class="action-card card-orange">
+                <div class="card-icon">👤</div>
+                <h3 class="card-title">マイページ</h3>
+                <p class="card-subtitle">あなたの活動を確認</p>
+                <div class="card-arrow">→</div>
+            </a>
+        </div>
+
+        <!-- 投稿数等いれたいとき用 -->
+        <!--
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">投稿数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">48</div>
+                <div class="stat-label">リレー参加</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">156</div>
+                <div class="stat-label">いいね</div>
+            </div>
+        </div>
+        <!-->
+    </main>
+
+    <!-- Floating Elements -->
+    <div class="floating-sparkle sparkle-1">✨</div>
+    <div class="floating-sparkle sparkle-2">✨</div>
+</body>
 </html>
