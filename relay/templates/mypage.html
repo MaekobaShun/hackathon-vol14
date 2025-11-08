@@ -5,26 +5,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>マイページ - ひらめきリレー</title>
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='mypage.css') }}">
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <h1>
-                    <img src="{{ url_for('static', filename='images/icon_white.png') }}" alt="アイコン" class="header-icon">
-                    マイページ
-                </h1>
-                <nav class="nav-links">
-                    <a href="{{ url_for('index') }}">ホーム</a>
-                    <a href="{{ url_for('form') }}">投稿</a>
-                    <a href="{{ url_for('gacha') }}">ガチャ</a>
-                    <a href="{{ url_for('mypage') }}">マイページ</a>
-                </nav>
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo-icon">💡</div>
+                    <h1 class="logo-text">ひらめきリレー</h1>
+                </div>
+                <div class="header-right">
+                    <nav class="mypage-nav">
+                        <a href="{{ url_for('index') }}">ホーム</a>
+                        <a href="{{ url_for('form') }}">投稿</a>
+                        <a href="{{ url_for('gacha') }}">ガチャ</a>
+                        <a href="{{ url_for('mypage') }}" class="active">マイページ</a>
+                    </nav>
+                </div>
             </div>
+        </header>
 
-            <div class="profile-section">
-                <div class="profile-card">
-                    <div class="profile-header">
+        <main class="mypage-main">
+            <section class="profile-section">
+                <div class="profile-card glass-card">
+                    <div class="profile-card__header">
                         <div class="profile-avatar">
                             {% if user.icon_path %}
                                 <img src="{{ url_for('static', filename=user.icon_path) }}" alt="ユーザーアイコン" class="avatar-image">
@@ -39,12 +44,26 @@
                             <button type="button" class="profile-edit-trigger" id="profile-edit-open">プロフィールを編集</button>
                         </div>
                     </div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="profile-stat__label">投稿</span>
+                            <span class="profile-stat__value">{{ ideas|length }}</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat__label">ガチャ</span>
+                            <span class="profile-stat__value">{{ gacha_results|length }}</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat__label">復活通知</span>
+                            <span class="profile-stat__value">{{ revival_notifications|length }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
-                    <div class="flash-messages">
+                    <div class="flash-messages glass-card">
                         {% for message in messages %}
                             <p>{{ message }}</p>
                         {% endfor %}
@@ -52,7 +71,7 @@
                 {% endif %}
             {% endwith %}
 
-            <div class="content-section">
+            <section class="content-section glass-card">
                 <!-- タブナビゲーション -->
                 <div class="tabs">
                     <button class="tab-button active" data-tab="posted">
@@ -143,7 +162,7 @@
                         </div>
                     {% endif %}
                 </div>
-            </div>
+            </section>
 
             <div class="profile-edit-panel" id="profile-edit-panel" aria-hidden="true">
                 <div class="profile-edit-panel__content">
@@ -181,7 +200,10 @@
                     <button type="submit" class="logout-button">ログアウト</button>
                 </form>
             </footer>
-        </div>
+        </main>
+
+        <div class="floating-sparkle sparkle-1">✨</div>
+        <div class="floating-sparkle sparkle-2">✨</div>
 
         <script>
             // タブ切り替え機能
