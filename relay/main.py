@@ -530,32 +530,30 @@ def mypage():
 
     revival_rows = con.execute("""
         SELECT 
-            gr.result_id,
-            gr.created_at,
-            gr.user_id as picker_id,
-            u.nickname as picker_nickname,
-            i.idea_id,
+            rn.notify_id,
+            rn.created_at,
+            rn.picker_id,
+            picker.nickname,
+            picker.icon_path,
             i.title,
-            i.detail,
             i.category
-        FROM gacha_result gr
-        JOIN ideas i ON gr.idea_id = i.idea_id
-        LEFT JOIN mypage u ON gr.user_id = u.user_id
-        WHERE i.user_id = ? AND gr.user_id != ?
-        ORDER BY gr.created_at DESC
-    """, (user_id, user_id)).fetchall()
+        FROM revival_notify rn
+        JOIN ideas i ON rn.idea_id = i.idea_id
+        LEFT JOIN mypage picker ON rn.picker_id = picker.user_id
+        WHERE rn.author_id = ?
+        ORDER BY rn.created_at DESC
+    """, (user_id,)).fetchall()
 
     revival_notifications = []
     for row in revival_rows:
         revival_notifications.append({
-            'result_id': row[0],
+            'notify_id': row[0],
             'created_at': row[1],
             'picker_id': row[2],
             'picker_nickname': row[3] if row[3] else '不明なユーザー',
-            'idea_id': row[4],
+            'picker_icon_path': row[4],
             'idea_title': row[5],
-            'detail': row[6],
-            'category': row[7]
+            'category': row[6]
         })
 
     con.close()

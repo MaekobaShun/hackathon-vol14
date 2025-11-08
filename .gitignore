@@ -123,10 +123,9 @@ dmypy.json
 .pyre/
 
 # Database files
-*.db
 *.sqlite
 *.sqlite3
-databese.db
+
 
 # IDE
 .vscode/
