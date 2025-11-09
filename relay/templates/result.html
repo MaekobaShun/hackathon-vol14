@@ -30,6 +30,16 @@
                 <div class="result-icon">🎉</div>
                 <h2 class="result-title">ガチャ結果</h2>
 
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="result-flash">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
                 {% if item %}
                     <article class="result-card">
                         <h3 class="result-card__title">{{ item[1] }}</h3>
