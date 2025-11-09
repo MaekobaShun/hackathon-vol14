@@ -20,6 +20,9 @@ import uuid
 from datetime import datetime
 import unicodedata
 import os
+from urllib.parse import urlparse
+
+import cloudinary.uploader
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
@@ -54,6 +57,15 @@ def login_required(view_func):
 
 
 def store_icon_file(icon_file, extension):
+    if app.config.get('USE_CLOUDINARY'):
+        icon_file.stream.seek(0)
+        upload_options = {'resource_type': 'image'}
+        folder = os.environ.get('CLOUDINARY_UPLOAD_FOLDER')
+        if folder:
+            upload_options['folder'] = folder
+        upload_result = cloudinary.uploader.upload(icon_file, **upload_options)
+        return upload_result.get('secure_url')
+
     uploads_dir = app.config['UPLOAD_FOLDER']
     os.makedirs(uploads_dir, exist_ok=True)
     stored_filename = f"{uuid.uuid4().hex}{extension}"
@@ -66,12 +78,34 @@ def store_icon_file(icon_file, extension):
 def delete_icon_file(icon_path):
     if not icon_path:
         return
-    if not icon_path.startswith('uploads/'):
+    if icon_path.startswith('http'):
+        if app.config.get('USE_CLOUDINARY'):
+            public_id = _extract_public_id(icon_path)
+            if public_id:
+                cloudinary.uploader.destroy(public_id, invalidate=True)
         return
-    filename = icon_path.split('/', 1)[1]
-    absolute_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(absolute_path):
-        os.remove(absolute_path)
+    if icon_path.startswith('uploads/'):
+        filename = icon_path.split('/', 1)[1]
+        absolute_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(absolute_path):
+            os.remove(absolute_path)
+
+
+def _extract_public_id(url: str) -> str | None:
+    parsed = urlparse(url)
+    path_parts = parsed.path.strip('/').split('/')
+    try:
+        upload_index = path_parts.index('upload')
+    except ValueError:
+        return None
+    public_parts = path_parts[upload_index + 1 :]
+    if public_parts and public_parts[0].startswith('v') and public_parts[0][1:].isdigit():
+        public_parts = public_parts[1:]
+    if not public_parts:
+        return None
+    public_id_with_ext = '/'.join(public_parts)
+    public_id, _ = os.path.splitext(public_id_with_ext)
+    return public_id or None
 
 
 def get_current_user_id():

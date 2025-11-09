@@ -34,6 +34,8 @@
                             {% if user.icon_path %}
                                 {% if user.icon_path.startswith('uploads/') %}
                                     <img src="{{ url_for('uploaded_file', filename=user.icon_path[8:]) }}" alt="ユーザーアイコン" class="avatar-image">
+                                {% elif user.icon_path.startswith('http') %}
+                                    <img src="{{ user.icon_path }}" alt="ユーザーアイコン" class="avatar-image">
                                 {% else %}
                                     <img src="{{ url_for('static', filename=user.icon_path) }}" alt="ユーザーアイコン" class="avatar-image">
                                 {% endif %}
@@ -131,6 +133,22 @@
                                 </div>
                                 <p class="idea-detail">{{ result.detail }}</p>
                                 <div class="idea-footer">
+                                    {% if result.already_thanked %}
+                                        <span class="thanks-status">サンクス済み</span>
+                                    {% else %}
+                                        <form action="{{ url_for('send_thanks') }}" method="post" class="thanks-inline-form">
+                                            <input type="hidden" name="result_id" value="{{ result.result_id }}">
+                                            <div class="thanks-inline">
+                                                <select name="stamp_type" class="thanks-inline-select">
+                                                    <option value="default">🙏</option>
+                                                    <option value="flower">🌸</option>
+                                                    <option value="clap">👏</option>
+                                                    <option value="spark">✨</option>
+                                                </select>
+                                                <button type="submit" class="thanks-button">サンクス</button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
                                     <span class="idea-date">{{ result.created_at }}</span>
                                 </div>
                             </div>
@@ -151,6 +169,8 @@
                                     {% if notification.picker_icon_path %}
                                         {% if notification.picker_icon_path.startswith('uploads/') %}
                                             <img src="{{ url_for('uploaded_file', filename=notification.picker_icon_path[8:]) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                        {% elif notification.picker_icon_path.startswith('http') %}
+                                            <img src="{{ notification.picker_icon_path }}" alt="{{ notification.picker_nickname }}のアイコン">
                                         {% else %}
                                             <img src="{{ url_for('static', filename=notification.picker_icon_path) }}" alt="{{ notification.picker_nickname }}のアイコン">
                                         {% endif %}
