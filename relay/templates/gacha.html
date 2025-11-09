@@ -30,11 +30,22 @@
                 <div class="gacha-icon">💡</div>
                 <h2 class="gacha-title">ひらめきガチャ</h2>
                 <p class="gacha-description">
-                    新しいアイデアやインスピレーションを<span><br></span>
-                    ガチャで手に入れましょう。<strong>ワクワクする出会い</strong>があなたを待っています！
+                    <strong>次のアイデアは、ここからはじまる。</strong>
                 </p>
                 
                 <form action="{{ url_for('spin') }}" method="get">
+                    <label for="category">カテゴリを選択</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="">すべてのカテゴリ</option>
+                        <option value="ビジネス・業務効率化">ビジネス・業務効率化</option>
+                        <option value="教育">教育</option>
+                        <option value="エンタメ">エンタメ</option>
+                        <option value="クリエイティブ・創作支援">クリエイティブ・創作支援</option>
+                        <option value="生活・ライフスタイル">生活・ライフスタイル</option>
+                        <option value="コミュニケーション">コミュニケーション</option>
+                        <option value="開発者ツール">開発者ツール</option>
+                        <option value="その他">その他</option>
+                    </select>
                     <button type="submit" class="spin-button">🎰 ガチャを回す</button>
                 </form>
 
