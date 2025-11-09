@@ -8,10 +8,9 @@ from flask import (
     flash,
     send_from_directory,
 )
-from relay.db import DATABASE
-import sqlite3
 from relay.db import (
     fetch_random_item,
+    get_connection,
     get_user_by_email,
     get_user_by_user_id,
     insert_user,
@@ -120,23 +119,22 @@ def uploaded_file(filename):
 @app.route('/')
 @login_required
 def index():
-    con = sqlite3.connect(DATABASE)
-    db_items = con.execute(
-        """
-        SELECT 
-            i.idea_id,
-            i.title,
-            i.detail,
-            i.category,
-            i.user_id,
-            i.created_at,
-            u.nickname
-        FROM ideas i
-        LEFT JOIN mypage u ON i.user_id = u.user_id
-        ORDER BY i.created_at DESC
-        """
-    ).fetchall()
-    con.close()
+    with get_connection() as con:
+        db_items = con.execute(
+            """
+            SELECT 
+                i.idea_id,
+                i.title,
+                i.detail,
+                i.category,
+                i.user_id,
+                i.created_at,
+                u.nickname
+            FROM ideas i
+            LEFT JOIN mypage u ON i.user_id = u.user_id
+            ORDER BY i.created_at DESC
+            """
+        ).fetchall()
 
     items = []
 
@@ -187,14 +185,14 @@ def post():
         )
         return redirect(url_for('form'))
 
-    con = sqlite3.connect(DATABASE)
-    idea_id = str(uuid.uuid4())
-    user_id = session['user_id']
-    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    con.execute("INSERT INTO ideas VALUES (?, ?, ?, ?, ?, ?)", 
-                [idea_id, title, detail, category, user_id, created_at])
-    con.commit()
-    con.close()
+    with get_connection() as con:
+        idea_id = str(uuid.uuid4())
+        user_id = session['user_id']
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        con.execute(
+            "INSERT INTO ideas VALUES (?, ?, ?, ?, ?, ?)", 
+            [idea_id, title, detail, category, user_id, created_at]
+        )
 
     return redirect(url_for('index'))
 
@@ -204,7 +202,7 @@ def post():
 def delete_idea(idea_id):
     user_id = session['user_id']
 
-    with sqlite3.connect(DATABASE) as con:
+    with get_connection() as con:
         cur = con.cursor()
         idea_row = cur.execute(
             "SELECT user_id FROM ideas WHERE idea_id = ?",
@@ -228,7 +226,7 @@ def delete_idea(idea_id):
 def post_view(idea_id):
     user_id = session['user_id']
 
-    with sqlite3.connect(DATABASE) as con:
+    with get_connection() as con:
         row = con.execute(
             """
             SELECT 
@@ -439,7 +437,7 @@ def result():
     idea_id = session.pop('last_gacha_idea_id', None)
 
     if idea_id:
-        with sqlite3.connect(DATABASE) as con:
+        with get_connection() as con:
             idea = con.execute(
                 "SELECT idea_id, title, detail, category, user_id, created_at FROM ideas WHERE idea_id = ?",
                 (idea_id,)
@@ -468,7 +466,7 @@ def spin():
     author_id = item[4]
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    with sqlite3.connect(DATABASE) as con:
+    with get_connection() as con:
         con.execute(
             "INSERT INTO gacha_result (result_id, user_id, idea_id, created_at) VALUES (?, ?, ?, ?)",
             (str(uuid.uuid4()), current_user_id, idea_id, now)
@@ -518,7 +516,7 @@ def update_profile():
             flash(message)
         return redirect(url_for('mypage'))
 
-    with sqlite3.connect(DATABASE) as con:
+    with get_connection() as con:
         cur = con.cursor()
         current_row = cur.execute(
             "SELECT icon_path FROM mypage WHERE user_id = ?",
@@ -555,89 +553,85 @@ def update_profile():
 def mypage():
     user_id = session['user_id']
 
-    con = sqlite3.connect(DATABASE)
+    with get_connection() as con:
+        user_row = con.execute(
+            "SELECT user_id, nickname, email, icon_path, created_at FROM mypage WHERE user_id = ?",
+            (user_id,)
+        ).fetchone()
 
-    user_row = con.execute(
-        "SELECT user_id, nickname, email, icon_path, created_at FROM mypage WHERE user_id = ?",
-        (user_id,)
-    ).fetchone()
+        if not user_row:
+            session.clear()
+            return redirect(url_for('login'))
 
-    if not user_row:
-        con.close()
-        session.clear()
-        return redirect(url_for('login'))
+        user = {
+            'user_id': user_row[0],
+            'nickname': user_row[1],
+            'email': user_row[2],
+            'icon_path': user_row[3],
+            'created_at': user_row[4]
+        }
 
-    user = {
-        'user_id': user_row[0],
-        'nickname': user_row[1],
-        'email': user_row[2],
-        'icon_path': user_row[3],
-        'created_at': user_row[4]
-    }
+        idea_rows = con.execute(
+            "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
+            (user_id,)
+        ).fetchall()
 
-    idea_rows = con.execute(
-        "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
-        (user_id,)
-    ).fetchall()
+        ideas = []
+        for row in idea_rows:
+            ideas.append({
+                'idea_id': row[0],
+                'title': row[1],
+                'detail': row[2],
+                'category': row[3],
+                'created_at': row[4]
+            })
 
-    ideas = []
-    for row in idea_rows:
-        ideas.append({
-            'idea_id': row[0],
-            'title': row[1],
-            'detail': row[2],
-            'category': row[3],
-            'created_at': row[4]
-        })
+        gacha_rows = con.execute("""
+            SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
+            FROM gacha_result gr
+            JOIN ideas i ON gr.idea_id = i.idea_id
+            WHERE gr.user_id = ?
+            ORDER BY gr.created_at DESC
+        """, (user_id,)).fetchall()
 
-    gacha_rows = con.execute("""
-        SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
-        FROM gacha_result gr
-        JOIN ideas i ON gr.idea_id = i.idea_id
-        WHERE gr.user_id = ?
-        ORDER BY gr.created_at DESC
-    """, (user_id,)).fetchall()
+        gacha_results = []
+        for row in gacha_rows:
+            gacha_results.append({
+                'result_id': row[0],
+                'created_at': row[1],
+                'idea_id': row[2],
+                'idea_title': row[3],
+                'detail': row[4],
+                'category': row[5]
+            })
 
-    gacha_results = []
-    for row in gacha_rows:
-        gacha_results.append({
-            'result_id': row[0],
-            'created_at': row[1],
-            'idea_id': row[2],
-            'idea_title': row[3],
-            'detail': row[4],
-            'category': row[5]
-        })
+        revival_rows = con.execute("""
+            SELECT 
+                rn.notify_id,
+                rn.created_at,
+                rn.picker_id,
+                picker.nickname,
+                picker.icon_path,
+                i.title,
+                i.category
+            FROM revival_notify rn
+            JOIN ideas i ON rn.idea_id = i.idea_id
+            LEFT JOIN mypage picker ON rn.picker_id = picker.user_id
+            WHERE rn.author_id = ?
+            ORDER BY rn.created_at DESC
+        """, (user_id,)).fetchall()
 
-    revival_rows = con.execute("""
-        SELECT 
-            rn.notify_id,
-            rn.created_at,
-            rn.picker_id,
-            picker.nickname,
-            picker.icon_path,
-            i.title,
-            i.category
-        FROM revival_notify rn
-        JOIN ideas i ON rn.idea_id = i.idea_id
-        LEFT JOIN mypage picker ON rn.picker_id = picker.user_id
-        WHERE rn.author_id = ?
-        ORDER BY rn.created_at DESC
-    """, (user_id,)).fetchall()
-
-    revival_notifications = []
-    for row in revival_rows:
-        revival_notifications.append({
-            'notify_id': row[0],
-            'created_at': row[1],
-            'picker_id': row[2],
-            'picker_nickname': row[3] if row[3] else '不明なユーザー',
-            'picker_icon_path': row[4],
-            'idea_title': row[5],
-            'category': row[6]
-        })
-
-    con.close()
+        revival_notifications = []
+        for row in revival_rows:
+            revival_notifications.append({
+                'notify_id': row[0],
+                'created_at': row[1],
+                'picker_id': row[2],
+                'picker_nickname': row[3] if row[3] else '不明なユーザー',
+                'picker_icon_path': row[4],
+                'idea_title': row[5],
+                'category': row[6]
+            })
 
     return render_template(
         'mypage.html',
