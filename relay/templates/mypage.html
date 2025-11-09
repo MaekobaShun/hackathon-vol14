@@ -133,22 +133,6 @@
                                 </div>
                                 <p class="idea-detail">{{ result.detail }}</p>
                                 <div class="idea-footer">
-                                    {% if result.already_thanked %}
-                                        <span class="thanks-status">サンクス済み</span>
-                                    {% else %}
-                                        <form action="{{ url_for('send_thanks') }}" method="post" class="thanks-inline-form">
-                                            <input type="hidden" name="result_id" value="{{ result.result_id }}">
-                                            <div class="thanks-inline">
-                                                <select name="stamp_type" class="thanks-inline-select">
-                                                    <option value="default">🙏</option>
-                                                    <option value="flower">🌸</option>
-                                                    <option value="clap">👏</option>
-                                                    <option value="spark">✨</option>
-                                                </select>
-                                                <button type="submit" class="thanks-button">サンクス</button>
-                                            </div>
-                                        </form>
-                                    {% endif %}
                                     <span class="idea-date">{{ result.created_at }}</span>
                                 </div>
                             </div>
