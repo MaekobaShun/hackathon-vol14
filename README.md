@@ -21,7 +21,7 @@ Flask + Supabase (PostgreSQL) をバックエンドに、Cloudinary でユーザ
 - 本番稼働中: [https://hirameki-relay.onrender.com/](https://hirameki-relay.onrender.com/)
 
 - 画面操作デモ GIF:
-![アプリ操作デモ](relay/static/uploads/demo.gif)
+![アプリ操作デモ](relay/static/images/demo.gif)
 
 ## セットアップ
 
