@@ -387,7 +387,8 @@ def logout():
 @app.route('/gacha')
 @login_required
 def gacha():
-    return render_template("gacha.html")
+    selected_category = request.args.get("category", "")
+    return render_template("gacha.html", selected_category=selected_category)
 
 # ランダムに1つのアイテムを表示するルート
 @app.route('/result')
@@ -410,12 +411,17 @@ def result():
 @login_required
 def spin():
     current_user_id = session.get('user_id')
-    item = fetch_random_item(exclude_user_id=current_user_id)
+    category = request.args.get('category')  # 💡カテゴリを取得
+
+    item = fetch_random_item(
+        exclude_user_id=current_user_id,
+        category=category
+    )
 
     if not item:
         session['last_gacha_idea_id'] = None
         flash('現在引けるアイデアがありません。')
-        return redirect(url_for('result'))
+        return redirect(url_for('result', category=category))
 
     idea_id = item[0]
     author_id = item[4]
@@ -435,7 +441,9 @@ def spin():
 
     session['last_gacha_idea_id'] = idea_id
 
-    return redirect(url_for('result'))
+    # ✅ カテゴリをつけて結果ページにリダイレクト
+    return redirect(url_for('result', category=category))
+
 # ここまでガチャ機能
 
 # マイページ

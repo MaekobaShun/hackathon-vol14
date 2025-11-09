@@ -75,21 +75,30 @@ def create_table():
     con.close()
 
 # データベースから全アイテムを取得する関数
-def fetch_items(exclude_user_id=None):
+def fetch_items(exclude_user_id=None, category=None):
     con = sqlite3.connect(DATABASE)
     cursor = con.cursor()
+
+    query = "SELECT * FROM ideas WHERE 1=1"
+    params = []
+
     if exclude_user_id:
-        cursor.execute("SELECT * FROM ideas WHERE user_id != ?", (exclude_user_id,))
-    else:
-        cursor.execute("SELECT * FROM ideas")
+        query += " AND user_id != ?"
+        params.append(exclude_user_id)
+
+    if category:
+        query += " AND category = ?"
+        params.append(category)
+
+    cursor.execute(query, tuple(params))
     rows = cursor.fetchall()
     con.close()
     return rows
 
 
 # ランダムに1つのアイテムを取得する関数
-def fetch_random_item(exclude_user_id=None):
-    items = fetch_items(exclude_user_id=exclude_user_id)
+def fetch_random_item(exclude_user_id=None, category=None):
+    items = fetch_items(exclude_user_id=exclude_user_id, category=category)
     if items:
         return random.choice(items)
     return None

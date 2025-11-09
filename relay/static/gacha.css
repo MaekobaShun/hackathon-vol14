@@ -63,6 +63,97 @@ body {
     color: #7c3aed;
 }
 
+.category-section {
+    text-align: left;
+    margin-bottom: 2.5rem;
+}
+
+.category-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4c1d95;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.02em;
+}
+
+.category-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.category-item {
+    position: relative;
+}
+
+.category-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.category-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: 1.25rem;
+    border: 1.5px solid rgba(167, 139, 250, 0.35);
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 16px 32px rgba(124, 58, 237, 0.12);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    min-height: 110px;
+    position: relative;
+    height: 100%;
+}
+
+.category-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.category-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.category-option:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 40px rgba(124, 58, 237, 0.18);
+    border-color: rgba(124, 58, 237, 0.45);
+}
+
+.category-input:checked + .category-option {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.33) 0%, rgba(236, 72, 153, 0.25) 100%);
+    border-color: rgba(124, 58, 237, 0.65);
+    box-shadow: 0 24px 48px rgba(124, 58, 237, 0.22);
+}
+
+.category-input:focus-visible + .category-option {
+    outline: 3px solid rgba(124, 58, 237, 0.55);
+    outline-offset: 3px;
+}
+
+.category-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4338ca;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.category-description {
+    font-size: 0.85rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
 .spin-button {
     display: inline-flex;
     align-items: center;
@@ -142,6 +233,28 @@ body {
 @media (max-width: 640px) {
     .gacha-card {
         padding: 2.75rem 1.75rem;
+    }
+
+    .category-selector {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .category-item {
+        height: 100%;
+    }
+
+    .category-option {
+        min-height: 105px;
+        padding: 1rem;
+    }
+
+    .category-name {
+        font-size: 0.95rem;
+    }
+
+    .category-description {
+        font-size: 0.8rem;
     }
 
     .gacha-icon {
