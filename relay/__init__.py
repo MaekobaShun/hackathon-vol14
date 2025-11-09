@@ -18,6 +18,7 @@ cloud_api_secret = os.environ.get('CLOUDINARY_API_SECRET')
 
 default_upload_dir = os.path.join(app.root_path, 'static', 'uploads')
 
+
 if cloud_name and cloud_api_key and cloud_api_secret:
     cloudinary.config(
         cloud_name=cloud_name,
@@ -26,19 +27,13 @@ if cloud_name and cloud_api_key and cloud_api_secret:
         secure=True,
     )
     app.config['USE_CLOUDINARY'] = True
-    uploads_env = os.environ.get('UPLOAD_FOLDER')
-    if uploads_env:
-        uploads_dir = os.path.abspath(uploads_env)
-        os.makedirs(uploads_dir, exist_ok=True)
-        app.config['UPLOAD_FOLDER'] = uploads_dir
-    else:
-        app.config['UPLOAD_FOLDER'] = default_upload_dir
 else:
     app.config['USE_CLOUDINARY'] = False
-    uploads_env = os.environ.get('UPLOAD_FOLDER')
-    uploads_dir = os.path.abspath(uploads_env) if uploads_env else default_upload_dir
-    os.makedirs(uploads_dir, exist_ok=True)
-    app.config['UPLOAD_FOLDER'] = uploads_dir
+
+uploads_env = os.environ.get('UPLOAD_FOLDER')
+uploads_dir = os.path.abspath(uploads_env) if uploads_env else default_upload_dir
+os.makedirs(uploads_dir, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = uploads_dir
 
 from relay import db  # noqa: E402
 
