@@ -8,7 +8,7 @@ USE_SUPABASE = bool(
 )
 
 if USE_SUPABASE:
-    import psycopg2  # type: ignore
+    import psycopg  # type: ignore
 else:
     import sqlite3  # type: ignore
 
@@ -20,9 +20,9 @@ DATABASE = os.environ.get('DB_PATH', _DEFAULT_DB_PATH)
 _SUPABASE_SETTINGS: dict[str, str | int] = {}
 
 if USE_SUPABASE:
-    dsn = os.environ.get('SUPABASE_DATABASE_URL') or os.environ.get('DATABASE_URL')
-    if dsn:
-        _SUPABASE_SETTINGS['dsn'] = dsn
+    conninfo = os.environ.get('SUPABASE_DATABASE_URL') or os.environ.get('DATABASE_URL')
+    if conninfo:
+        _SUPABASE_SETTINGS['conninfo'] = conninfo
     else:
         host = os.environ.get('SUPABASE_HOST')
         user = os.environ.get('SUPABASE_USER')
@@ -70,7 +70,7 @@ class SupabaseConnection:
     def __init__(self):
         if not using_supabase():
             raise RuntimeError('Supabase connection settings are not configured.')
-        self._conn = psycopg2.connect(**_SUPABASE_SETTINGS)  # type: ignore[arg-type]
+        self._conn = psycopg.connect(**_SUPABASE_SETTINGS)  # type: ignore[arg-type]
         self._conn.autocommit = False
 
     def execute(self, query, params=()):
