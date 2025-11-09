@@ -113,18 +113,26 @@ def create_table():
             CREATE TABLE IF NOT EXISTS mypage (
                 user_id      VARCHAR(64) PRIMARY KEY,
                 nickname     VARCHAR(32) NOT NULL,
-                password     VARCHAR(128) NOT NULL,
-                email        VARCHAR(128) UNIQUE NOT NULL,
-                icon_path    VARCHAR(255),
+                password     TEXT NOT NULL,
+                email        VARCHAR(255) UNIQUE NOT NULL,
+                icon_path    TEXT,
                 created_at   TIMESTAMP NOT NULL
             )
         """)
 
         if using_supabase():
-            con.execute("ALTER TABLE mypage ADD COLUMN IF NOT EXISTS icon_path VARCHAR(255)")
+            con.execute("ALTER TABLE mypage ADD COLUMN IF NOT EXISTS icon_path TEXT")
+            try:
+                con.execute("ALTER TABLE mypage ALTER COLUMN password TYPE TEXT")
+            except Exception:
+                pass
+            try:
+                con.execute("ALTER TABLE mypage ALTER COLUMN email TYPE VARCHAR(255)")
+            except Exception:
+                pass
         else:
             try:
-                con.execute("ALTER TABLE mypage ADD COLUMN icon_path VARCHAR(255)")
+                con.execute("ALTER TABLE mypage ADD COLUMN icon_path TEXT")
             except Exception:
                 pass
 
