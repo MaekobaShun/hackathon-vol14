@@ -1,5 +1,13 @@
 from relay import app
-from flask import render_template, request, redirect, url_for, session, flash
+from flask import (
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    send_from_directory,
+)
 from relay.db import DATABASE
 import sqlite3
 from relay.db import (
@@ -15,8 +23,6 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
-import os
-from werkzeug.utils import secure_filename
 
 ALLOWED_ICON_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif'}
 MAX_NICKNAME_LENGTH = 32
@@ -48,7 +54,7 @@ def login_required(view_func):
 
 
 def store_icon_file(icon_file, extension):
-    uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
+    uploads_dir = app.config['UPLOAD_FOLDER']
     os.makedirs(uploads_dir, exist_ok=True)
     stored_filename = f"{uuid.uuid4().hex}{extension}"
     save_path = os.path.join(uploads_dir, stored_filename)
@@ -62,13 +68,19 @@ def delete_icon_file(icon_path):
         return
     if not icon_path.startswith('uploads/'):
         return
-    absolute_path = os.path.join(app.root_path, 'static', icon_path)
+    filename = icon_path.split('/', 1)[1]
+    absolute_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.exists(absolute_path):
         os.remove(absolute_path)
 
 
 def get_current_user_id():
     return session.get('user_id')
+
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/')
@@ -289,13 +301,8 @@ def signup():
 
         if not errors:
             if icon_candidate:
-                uploads_dir = os.path.join(app.root_path, 'static', 'uploads')
-                os.makedirs(uploads_dir, exist_ok=True)
-                stored_filename = f"{uuid.uuid4().hex}{icon_candidate[1]}"
-                icon_stream, _ = icon_candidate
-                icon_stream.stream.seek(0)
-                icon_stream.save(os.path.join(uploads_dir, stored_filename))
-                icon_path = os.path.join('uploads', stored_filename)
+                icon_stream, ext = icon_candidate
+                icon_path = store_icon_file(icon_stream, ext)
 
             user_id = raw_user_id if raw_user_id and not errors else None
             password_hash = generate_password_hash(password)

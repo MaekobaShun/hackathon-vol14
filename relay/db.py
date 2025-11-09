@@ -1,8 +1,12 @@
+import os
 import sqlite3
 import random
 from datetime import datetime
 
-DATABASE = 'database.db'
+_DEFAULT_DB_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', 'database.db')
+)
+DATABASE = os.environ.get('DB_PATH', _DEFAULT_DB_PATH)
 
 def create_table():
     con = sqlite3.connect(DATABASE)

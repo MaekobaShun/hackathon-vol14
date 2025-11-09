@@ -32,7 +32,11 @@
                     <div class="profile-card__header">
                         <div class="profile-avatar">
                             {% if user.icon_path %}
-                                <img src="{{ url_for('static', filename=user.icon_path) }}" alt="ユーザーアイコン" class="avatar-image">
+                                {% if user.icon_path.startswith('uploads/') %}
+                                    <img src="{{ url_for('uploaded_file', filename=user.icon_path[8:]) }}" alt="ユーザーアイコン" class="avatar-image">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename=user.icon_path) }}" alt="ユーザーアイコン" class="avatar-image">
+                                {% endif %}
                             {% else %}
                                 <span class="avatar-text">{{ user.nickname[0] if user.nickname else 'U' }}</span>
                             {% endif %}
@@ -145,7 +149,11 @@
                             <div class="revival-item">
                                 <div class="revival-avatar">
                                     {% if notification.picker_icon_path %}
-                                        <img src="{{ url_for('static', filename=notification.picker_icon_path) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                        {% if notification.picker_icon_path.startswith('uploads/') %}
+                                            <img src="{{ url_for('uploaded_file', filename=notification.picker_icon_path[8:]) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename=notification.picker_icon_path) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                        {% endif %}
                                     {% else %}
                                         <span class="revival-avatar__initial">{{ notification.picker_nickname[0] if notification.picker_nickname and notification.picker_nickname != '不明なユーザー' else notification.picker_id[0] }}</span>
                                     {% endif %}
