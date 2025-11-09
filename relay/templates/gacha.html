@@ -34,19 +34,44 @@
                 </p>
                 
                 <form action="{{ url_for('spin') }}" method="get">
-                    <label for="category">カテゴリを選択</label>
-                    <select name="category" id="category" class="form-select">
-                        <option value="">すべてのカテゴリ</option>
-                        <option value="ビジネス・業務効率化">ビジネス・業務効率化</option>
-                        <option value="教育">教育</option>
-                        <option value="エンタメ">エンタメ</option>
-                        <option value="クリエイティブ・創作支援">クリエイティブ・創作支援</option>
-                        <option value="生活・ライフスタイル">生活・ライフスタイル</option>
-                        <option value="コミュニケーション">コミュニケーション</option>
-                        <option value="開発者ツール">開発者ツール</option>
-                        <option value="その他">その他</option>
-                    </select>
-                    <button type="submit" class="spin-button">🎰 ガチャを回す</button>
+                    {% set category_options = [
+                        {'value': '', 'label': 'すべて', 'description': 'すべてのカテゴリから', 'icon': '🌈'},
+                        {'value': 'ビジネス・業務効率化', 'label': 'ビジネス・業務効率化', 'description': '業務改善・自動化アイデア', 'icon': '📈'},
+                        {'value': '教育', 'label': '教育', 'description': '学びをアップデート', 'icon': '🎓'},
+                        {'value': 'エンタメ', 'label': 'エンタメ', 'description': 'ワクワクを生む発想', 'icon': '🎉'},
+                        {'value': 'クリエイティブ・創作支援', 'label': 'クリエイティブ・創作支援', 'description': 'ものづくりを加速', 'icon': '🎨'},
+                        {'value': '生活・ライフスタイル', 'label': '生活・ライフスタイル', 'description': '暮らしを豊かに', 'icon': '🏡'},
+                        {'value': 'コミュニケーション', 'label': 'コミュニケーション', 'description': 'つながりを深める', 'icon': '💬'},
+                        {'value': '開発者ツール', 'label': '開発者ツール', 'description': '開発をもっとスマートに', 'icon': '🛠️'},
+                        {'value': 'その他', 'label': 'その他', 'description': '枠に収まらないアイデア', 'icon': '✨'}
+                    ] %}
+                    {% set selected_value = selected_category or '' %}
+                    <div class="category-section">
+                        <p id="category-label" class="category-heading">カテゴリを選択</p>
+                        <div class="category-selector" role="radiogroup" aria-labelledby="category-label">
+                            {% for option in category_options %}
+                                {% set option_id = 'category-' ~ loop.index %}
+                                <div class="category-item">
+                                    <input
+                                        type="radio"
+                                        name="category"
+                                        id="{{ option_id }}"
+                                        value="{{ option.value }}"
+                                        class="category-input"
+                                        {% if selected_value == option.value %}checked{% endif %}
+                                    >
+                                    <label for="{{ option_id }}" class="category-option">
+                                        <span class="category-header">
+                                            <span class="category-icon" aria-hidden="true">{{ option.icon }}</span>
+                                            <span class="category-name">{{ option.label }}</span>
+                                        </span>
+                                        <span class="category-description">{{ option.description }}</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="spin-button">ガチャを回す</button>
                 </form>
 
                 <a href="{{ url_for('index') }}" class="link-secondary">トップページに戻る</a>

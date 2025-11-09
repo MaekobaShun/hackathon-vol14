@@ -387,7 +387,8 @@ def logout():
 @app.route('/gacha')
 @login_required
 def gacha():
-    return render_template("gacha.html")
+    selected_category = request.args.get("category", "")
+    return render_template("gacha.html", selected_category=selected_category)
 
 # ランダムに1つのアイテムを表示するルート
 @app.route('/result')

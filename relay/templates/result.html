@@ -47,9 +47,9 @@
                         {% if request.args.get('category') %}
                             <input type="hidden" name="category" value="{{ request.args.get('category') }}">
                         {% endif %}
-                        <button type="submit" class="result-button secondary">🎰 もう一度回す</button>
+                        <button type="submit" class="result-button secondary">もう一度回す</button>
                     </form>
-                    <a href="{{ url_for('index') }}" class="result-button">🏠 ホームに戻る</a>
+                    <a href="{{ url_for('gacha') }}" class="result-button">カテゴリ選択画面に戻る</a>
                 </div>
             </section>
         </main>
