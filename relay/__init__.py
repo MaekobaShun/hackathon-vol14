@@ -11,7 +11,8 @@ secret_key = (
 app.secret_key = secret_key
 
 default_upload_dir = os.path.join(app.root_path, 'static', 'uploads')
-uploads_dir = os.environ.get('UPLOAD_FOLDER', default_upload_dir)
+uploads_env = os.environ.get('UPLOAD_FOLDER')
+uploads_dir = os.path.abspath(uploads_env) if uploads_env else default_upload_dir
 os.makedirs(uploads_dir, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = uploads_dir
 
