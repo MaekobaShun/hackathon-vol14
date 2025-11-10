@@ -4,7 +4,6 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ログイン - ひらめきリレー</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
     </head>
     <body>
@@ -23,10 +22,6 @@
         <main class="auth-main">
             <div class="auth-card">
                 <h1>ログイン</h1>
-                <p class="auth-description">
-                    ユーザーID（先頭に@）またはメールアドレスとパスワードを入力して、リレーに参加しましょう。
-                </p>
-
                 {% if errors %}
                     <div class="auth-error">
                         <strong>入力内容を確認してください。</strong>

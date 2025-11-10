@@ -176,7 +176,7 @@ def create_table():
                 created_at      TIMESTAMP NOT NULL
             )
         """)
-
+    
 
 def fetch_items(exclude_user_id=None, category=None):
     with get_connection() as con:

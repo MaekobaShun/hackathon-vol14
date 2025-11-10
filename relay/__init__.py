@@ -30,10 +30,10 @@ if cloud_name and cloud_api_key and cloud_api_secret:
 else:
     app.config['USE_CLOUDINARY'] = False
 
-uploads_env = os.environ.get('UPLOAD_FOLDER')
-uploads_dir = os.path.abspath(uploads_env) if uploads_env else default_upload_dir
-os.makedirs(uploads_dir, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = uploads_dir
+    uploads_env = os.environ.get('UPLOAD_FOLDER')
+    uploads_dir = os.path.abspath(uploads_env) if uploads_env else default_upload_dir
+    os.makedirs(uploads_dir, exist_ok=True)
+    app.config['UPLOAD_FOLDER'] = uploads_dir
 
 from relay import db  # noqa: E402
 

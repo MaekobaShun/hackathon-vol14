@@ -3,7 +3,55 @@
 }
 
 body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+    background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 50%, #fef3f5 100%);
+    min-height: 100vh;
     color: #1f2937;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e9d5ff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-icon {
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    padding: 0.5rem;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    font-size: 1.75rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
 }
 
 .auth-main {
@@ -125,6 +173,38 @@ body {
     text-decoration: underline;
 }
 
+.floating-sparkle {
+    position: fixed;
+    font-size: 2rem;
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.sparkle-1 {
+    top: 5rem;
+    left: 2.5rem;
+    color: #c084fc;
+}
+
+.sparkle-2 {
+    bottom: 5rem;
+    right: 2.5rem;
+    color: #f9a8d4;
+    animation-delay: 1s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translateY(-10px);
+        opacity: 0.8;
+    }
+}
+
 .header-right .header-link {
     display: inline-flex;
     align-items: center;
@@ -143,9 +223,58 @@ body {
     transform: translateY(-2px);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .header-right .header-link {
+        width: 100%;
+        max-width: 260px;
+        margin: 0 auto;
+        justify-content: center;
+    }
+
+    .floating-sparkle {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
     .auth-card {
         padding: 2.25rem 1.75rem;
+    }
+
+    .auth-main {
+        padding: 2.75rem 1.25rem 3.5rem;
+    }
+
+    .header .header-right {
+        align-items: center;
+    }
+
+    .header-right .header-link {
+        max-width: 260px;
+        margin: 0 auto;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.4rem;
+    }
+
+    .auth-card h1 {
+        font-size: 1.6rem;
     }
 }
 

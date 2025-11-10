@@ -78,8 +78,9 @@ body {
 
 .category-selector {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+    width: 100%;
 }
 
 .category-item {
@@ -144,8 +145,8 @@ body {
     font-weight: 700;
     color: #4338ca;
     letter-spacing: 0.01em;
-    white-space: nowrap;
     line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 .category-description {
@@ -194,33 +195,6 @@ body {
     text-decoration: underline;
 }
 
-.mypage-nav {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-.mypage-nav a {
-    padding: 0.65rem 1.1rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.6);
-    color: #6d28d9;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-}
-
-.mypage-nav a:hover {
-    background: rgba(236, 72, 153, 0.2);
-    color: #7c3aed;
-    transform: translateY(-2px);
-}
-
-.mypage-nav a.active {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%);
-    color: white;
-}
-
 @keyframes float {
     0%, 100% {
         transform: translateY(0);
@@ -230,14 +204,15 @@ body {
     }
 }
 
+@media (max-width: 820px) {
+    .category-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 640px) {
     .gacha-card {
         padding: 2.75rem 1.75rem;
-    }
-
-    .category-selector {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.85rem;
     }
 
     .category-item {
@@ -268,6 +243,16 @@ body {
     .spin-button {
         width: 100%;
         padding: 1rem 1.5rem;
+    }
+
+    .category-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-selector {
+        grid-template-columns: 1fr;
     }
 }
 

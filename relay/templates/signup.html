@@ -14,25 +14,12 @@
                     <div class="logo-icon">💡</div>
                     <h1 class="logo-text">ひらめきリレー</h1>
                 </div>
-                <div class="header-right">
-                    <nav class="mypage-nav">
-                        <a href="{{ url_for('index') }}">ホーム</a>
-                        <a href="{{ url_for('form') }}">投稿</a>
-                        <a href="{{ url_for('gacha') }}">ガチャ</a>
-                        <a href="{{ url_for('mypage') }}">マイページ</a>
-                    </nav>
-                </div>
             </div>
         </header>
 
         <main class="signup-main">
             <section class="signup-card glass-card">
                 <h2 class="signup-title">ユーザー登録</h2>
-                <p class="signup-description">
-                    ひらめきリレーに参加するためのアカウントを作成しましょう。<br>
-                    メールアドレスとパスワードを登録すると、マイページやガチャ履歴が使えるようになります。
-                </p>
-
 
                 {% if success_message %}
                     <div class="status-message status-success">

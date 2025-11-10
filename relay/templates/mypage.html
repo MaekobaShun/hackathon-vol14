@@ -7,6 +7,7 @@
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='mypage.css') }}">
+        <script src="{{ url_for('static', filename='header.js') }}" defer></script>
     </head>
     <body>
         <header class="header">
@@ -16,6 +17,11 @@
                     <h1 class="logo-text">ひらめきリレー</h1>
                 </div>
                 <div class="header-right">
+                    <button class="menu-toggle" type="button" aria-label="メニューを開く" aria-expanded="false">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                     <nav class="mypage-nav">
                         <a href="{{ url_for('index') }}">ホーム</a>
                         <a href="{{ url_for('form') }}">投稿</a>
@@ -81,11 +87,11 @@
                 <!-- タブナビゲーション -->
                 <div class="tabs">
                     <button class="tab-button active" data-tab="posted">
-                        <span class="tab-label">投稿したアイデア</span>
+                        <span class="tab-label">投稿</span>
                         <span class="tab-count">{{ ideas|length }}</span>
                     </button>
                     <button class="tab-button" data-tab="gacha">
-                        <span class="tab-label">ガチャで獲得</span>
+                        <span class="tab-label">ガチャ</span>
                         <span class="tab-count">{{ gacha_results|length }}</span>
                     </button>
                     <button class="tab-button" data-tab="revival">
