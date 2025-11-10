@@ -559,22 +559,22 @@ def mypage():
             (user_id,)
         ).fetchone()
 
-    if not user_row:
-        session.clear()
-        return redirect(url_for('login'))
+        if not user_row:
+            session.clear()
+            return redirect(url_for('login'))
 
-    user = {
-        'user_id': user_row[0],
-        'nickname': user_row[1],
-        'email': user_row[2],
-        'icon_path': user_row[3],
-        'created_at': user_row[4]
-    }
+        user = {
+            'user_id': user_row[0],
+            'nickname': user_row[1],
+            'email': user_row[2],
+            'icon_path': user_row[3],
+            'created_at': user_row[4]
+        }
 
-    idea_rows = con.execute(
-        "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
-        (user_id,)
-    ).fetchall()
+        idea_rows = con.execute(
+            "SELECT idea_id, title, detail, category, created_at FROM ideas WHERE user_id = ? ORDER BY created_at DESC",
+            (user_id,)
+        ).fetchall()
 
     ideas = []
     for row in idea_rows:
@@ -586,13 +586,13 @@ def mypage():
             'created_at': row[4]
         })
 
-    gacha_rows = con.execute("""
-        SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
-        FROM gacha_result gr
-        JOIN ideas i ON gr.idea_id = i.idea_id
-        WHERE gr.user_id = ?
-        ORDER BY gr.created_at DESC
-    """, (user_id,)).fetchall()
+        gacha_rows = con.execute("""
+            SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
+            FROM gacha_result gr
+            JOIN ideas i ON gr.idea_id = i.idea_id
+            WHERE gr.user_id = ?
+            ORDER BY gr.created_at DESC
+        """, (user_id,)).fetchall()
 
     gacha_results = []
     for row in gacha_rows:
@@ -605,21 +605,21 @@ def mypage():
             'category': row[5]
         })
 
-    revival_rows = con.execute("""
-        SELECT 
-            rn.notify_id,
-            rn.created_at,
-            rn.picker_id,
-            picker.nickname,
-            picker.icon_path,
-            i.title,
-            i.category
-        FROM revival_notify rn
-        JOIN ideas i ON rn.idea_id = i.idea_id
-        LEFT JOIN mypage picker ON rn.picker_id = picker.user_id
-        WHERE rn.author_id = ?
-        ORDER BY rn.created_at DESC
-    """, (user_id,)).fetchall()
+        revival_rows = con.execute("""
+            SELECT 
+                rn.notify_id,
+                rn.created_at,
+                rn.picker_id,
+                picker.nickname,
+                picker.icon_path,
+                i.title,
+                i.category
+            FROM revival_notify rn
+            JOIN ideas i ON rn.idea_id = i.idea_id
+            LEFT JOIN mypage picker ON rn.picker_id = picker.user_id
+            WHERE rn.author_id = ?
+            ORDER BY rn.created_at DESC
+        """, (user_id,)).fetchall()
 
     revival_notifications = []
     for row in revival_rows:
