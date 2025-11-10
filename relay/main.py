@@ -576,16 +576,6 @@ def mypage():
             (user_id,)
         ).fetchall()
 
-    ideas = []
-    for row in idea_rows:
-        ideas.append({
-            'idea_id': row[0],
-            'title': row[1],
-            'detail': row[2],
-            'category': row[3],
-            'created_at': row[4]
-        })
-
         gacha_rows = con.execute("""
             SELECT gr.result_id, gr.created_at, i.idea_id, i.title, i.detail, i.category
             FROM gacha_result gr
@@ -593,17 +583,6 @@ def mypage():
             WHERE gr.user_id = ?
             ORDER BY gr.created_at DESC
         """, (user_id,)).fetchall()
-
-    gacha_results = []
-    for row in gacha_rows:
-        gacha_results.append({
-            'result_id': row[0],
-            'created_at': row[1],
-            'idea_id': row[2],
-            'idea_title': row[3],
-            'detail': row[4],
-            'category': row[5]
-        })
 
         revival_rows = con.execute("""
             SELECT 
@@ -620,6 +599,27 @@ def mypage():
             WHERE rn.author_id = ?
             ORDER BY rn.created_at DESC
         """, (user_id,)).fetchall()
+
+    ideas = []
+    for row in idea_rows:
+        ideas.append({
+            'idea_id': row[0],
+            'title': row[1],
+            'detail': row[2],
+            'category': row[3],
+            'created_at': row[4]
+        })
+
+    gacha_results = []
+    for row in gacha_rows:
+        gacha_results.append({
+            'result_id': row[0],
+            'created_at': row[1],
+            'idea_id': row[2],
+            'idea_title': row[3],
+            'detail': row[4],
+            'category': row[5]
+        })
 
     revival_notifications = []
     for row in revival_rows:
