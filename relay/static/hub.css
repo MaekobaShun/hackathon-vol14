@@ -377,7 +377,7 @@ body {
     }
 
     .mypage-nav {
-        width: min(100%, 320px);
+        width: clamp(280px, 96vw, 480px);
         justify-content: flex-start;
         gap: 0.65rem;
         flex-direction: column;

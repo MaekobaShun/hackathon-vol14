@@ -6,6 +6,7 @@
         <title>{{ idea.title }} - 投稿詳細</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='post_view.css') }}">
+        <script src="{{ url_for('static', filename='header.js') }}" defer></script>
     </head>
     <body>
         <header class="header">
@@ -15,11 +16,16 @@
                     <h1 class="logo-text">ひらめきリレー</h1>
                 </div>
                 <div class="header-right">
+                    <button class="menu-toggle" type="button" aria-label="メニューを開く" aria-expanded="false">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                     <nav class="mypage-nav">
                         <a href="{{ url_for('index') }}">ホーム</a>
                         <a href="{{ url_for('form') }}">投稿</a>
                         <a href="{{ url_for('gacha') }}">ガチャ</a>
-                        <a href="{{ url_for('mypage') }}">マイページ</a>
+                        <a href="{{ url_for('mypage') }}" class="active">マイページ</a>
                     </nav>
                 </div>
             </div>
