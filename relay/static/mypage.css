@@ -761,10 +761,12 @@ body {
         flex-direction: column;
         align-items: center;
         gap: 0.35rem;
+        font-size: 0.85rem;
     }
 
     .tab-count {
         margin-top: 0.1rem;
+        font-size: 0.72rem;
     }
 
     .tab-button.active::after {
