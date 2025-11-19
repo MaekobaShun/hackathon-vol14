@@ -59,6 +59,54 @@ body {
     position: relative;
 }
 
+/* 通知ベルアイコン */
+.notification-bell {
+    position: relative;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(233, 213, 255, 0.8);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    text-decoration: none;
+}
+
+.notification-bell:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.notification-bell:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.35);
+    outline-offset: 2px;
+}
+
+.bell-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    min-width: 20px;
+    text-align: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .menu-toggle {
     display: none;
     position: relative;

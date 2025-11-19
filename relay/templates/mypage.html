@@ -17,6 +17,12 @@
                     <h1 class="logo-text">ひらめきリレー</h1>
                 </div>
                 <div class="header-right">
+                    <button class="notification-bell" type="button" aria-label="通知を開く" aria-expanded="false" id="notification-bell">
+                        <span class="bell-icon">🔔</span>
+                        {% if revival_notifications|length > 0 %}
+                        <span class="notification-badge">{{ revival_notifications|length }}</span>
+                        {% endif %}
+                    </button>
                     <button class="menu-toggle" type="button" aria-label="メニューを開く" aria-expanded="false">
                         <span></span>
                         <span></span>
@@ -66,8 +72,8 @@
                             <span class="profile-stat__value">{{ gacha_results|length }}</span>
                         </div>
                         <div class="profile-stat">
-                            <span class="profile-stat__label">復活通知</span>
-                            <span class="profile-stat__value">{{ revival_notifications|length }}</span>
+                            <span class="profile-stat__label">継承</span>
+                            <span class="profile-stat__value">{{ inheritance_items|length }}</span>
                         </div>
                     </div>
                 </div>
@@ -94,9 +100,9 @@
                         <span class="tab-label">ガチャ</span>
                         <span class="tab-count">{{ gacha_results|length }}</span>
                     </button>
-                    <button class="tab-button" data-tab="revival">
-                        <span class="tab-label">復活通知</span>
-                        <span class="tab-count">{{ revival_notifications|length }}</span>
+                    <button class="tab-button" data-tab="inheritance">
+                        <span class="tab-label">継承</span>
+                        <span class="tab-count">{{ inheritance_items|length }}</span>
                     </button>
                 </div>
 
@@ -115,9 +121,12 @@
                                 <p class="idea-detail">{{ idea.detail }}</p>
                                 <div class="idea-footer">
                                     <span class="idea-date">{{ idea.created_at }}</span>
-                                    <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form">
-                                        <button type="submit" class="idea-delete-button">削除</button>
-                                    </form>
+                                    <div class="idea-actions">
+                                        <a href="{{ url_for('inheritance_form', idea_id=idea.idea_id) }}" class="inheritance-button" onclick="event.stopPropagation();">継承</a>
+                                        <form method="post" action="{{ url_for('delete_idea', idea_id=idea.idea_id) }}" class="idea-delete-form">
+                                            <button type="submit" class="idea-delete-button">削除</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -140,6 +149,7 @@
                                 <p class="idea-detail">{{ result.detail }}</p>
                                 <div class="idea-footer">
                                     <span class="idea-date">{{ result.created_at }}</span>
+                                    <a href="{{ url_for('inheritance_form', idea_id=result.idea_id) }}" class="inheritance-button" onclick="event.stopPropagation();">継承</a>
                                 </div>
                             </div>
                             {% endfor %}
@@ -147,37 +157,31 @@
                     {% endif %}
                 </div>
 
-                <!-- 復活通知タブ -->
-                <div id="revival-tab" class="tab-content">
-                    {% if revival_notifications == [] %}
-                        <p class="empty-message">復活通知はまだありません。</p>
+                <!-- 継承タブ -->
+                <div id="inheritance-tab" class="tab-content">
+                    {% if inheritance_items == [] %}
+                        <p class="empty-message">まだ継承したアイデアがありません。</p>
                     {% else %}
-                        <div class="revival-list">
-                            {% for notification in revival_notifications %}
-                            <div class="revival-item">
-                                <div class="revival-avatar">
-                                    {% if notification.picker_icon_path %}
-                                        {% if notification.picker_icon_path.startswith('uploads/') %}
-                                            <img src="{{ url_for('uploaded_file', filename=notification.picker_icon_path[8:]) }}" alt="{{ notification.picker_nickname }}のアイコン">
-                                        {% elif notification.picker_icon_path.startswith('http') %}
-                                            <img src="{{ notification.picker_icon_path }}" alt="{{ notification.picker_nickname }}のアイコン">
-                                        {% else %}
-                                            <img src="{{ url_for('static', filename=notification.picker_icon_path) }}" alt="{{ notification.picker_nickname }}のアイコン">
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="revival-avatar__initial">{{ notification.picker_nickname[0] if notification.picker_nickname and notification.picker_nickname != '不明なユーザー' else notification.picker_id[0] }}</span>
-                                    {% endif %}
+                        <div class="ideas-grid">
+                            {% for item in inheritance_items %}
+                            <div class="idea-card inheritance-card" role="button" tabindex="0" {% if item.child_idea_id %}data-detail-url="{{ url_for('post_view', idea_id=item.child_idea_id) }}"{% endif %}>
+                                <div class="idea-header">
+                                    <h4>{{ item.parent_title }}</h4>
+                                    <span class="idea-category">{{ item.parent_category }}</span>
                                 </div>
-                                <div class="revival-content">
-                                    <div class="revival-header">
-                                        <h4>{{ notification.idea_title }}</h4>
-                                        <span class="idea-category">{{ notification.category }}</span>
-                                    </div>
-                                    <p class="revival-message">
-                                        <strong>{{ notification.picker_nickname }}</strong> さんによって「{{ notification.idea_title }}」が復活しました。
-                                    </p>
-                                    <div class="revival-footer">
-                                        <span class="revival-date">{{ notification.created_at }}</span>
+                                {% if item.add_point %}
+                                <div class="inheritance-add-info">
+                                    <span class="inheritance-add-badge">✨ {{ item.add_point }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="idea-footer">
+                                    <span class="idea-date">{{ item.created_at }}</span>
+                                    <div class="inheritance-status-badge">
+                                        {% if item.child_idea_id %}
+                                            <span class="status-posted">投稿済み</span>
+                                        {% else %}
+                                            <span class="status-saved">保存済み</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -186,6 +190,53 @@
                     {% endif %}
                 </div>
             </section>
+
+            <!-- 通知一覧パネル -->
+            <div class="notification-panel" id="notification-panel" aria-hidden="true">
+                <div class="notification-panel__content">
+                    <div class="notification-panel__header">
+                        <h3>復活通知</h3>
+                        <button type="button" class="notification-close" id="notification-close" aria-label="閉じる">×</button>
+                    </div>
+                    <div class="notification-panel__body">
+                        {% if revival_notifications == [] %}
+                            <p class="empty-message">復活通知はまだありません。</p>
+                        {% else %}
+                            <div class="revival-list">
+                                {% for notification in revival_notifications %}
+                                <div class="revival-item">
+                                    <div class="revival-avatar">
+                                        {% if notification.picker_icon_path %}
+                                            {% if notification.picker_icon_path.startswith('uploads/') %}
+                                                <img src="{{ url_for('uploaded_file', filename=notification.picker_icon_path[8:]) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                            {% elif notification.picker_icon_path.startswith('http') %}
+                                                <img src="{{ notification.picker_icon_path }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                            {% else %}
+                                                <img src="{{ url_for('static', filename=notification.picker_icon_path) }}" alt="{{ notification.picker_nickname }}のアイコン">
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="revival-avatar__initial">{{ notification.picker_nickname[0] if notification.picker_nickname and notification.picker_nickname != '不明なユーザー' else notification.picker_id[0] }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="revival-content">
+                                        <div class="revival-header">
+                                            <h4>{{ notification.idea_title }}</h4>
+                                            <span class="idea-category">{{ notification.category }}</span>
+                                        </div>
+                                        <p class="revival-message">
+                                            <strong>{{ notification.picker_nickname }}</strong> さんによって「{{ notification.idea_title }}」が復活しました。
+                                        </p>
+                                        <div class="revival-footer">
+                                            <span class="revival-date">{{ notification.created_at }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
             <div class="profile-edit-panel" id="profile-edit-panel" aria-hidden="true">
                 <div class="profile-edit-panel__content">
@@ -238,6 +289,9 @@
                 const editCloseButton = document.getElementById('profile-edit-close');
                 const ideaCards = document.querySelectorAll('.idea-card[role="button"]');
                 const logoutForm = document.getElementById('logout-form');
+                const notificationBell = document.getElementById('notification-bell');
+                const notificationPanel = document.getElementById('notification-panel');
+                const notificationClose = document.getElementById('notification-close');
 
                 tabButtons.forEach(button => {
                     button.addEventListener('click', function() {
@@ -327,6 +381,39 @@
                         }
                     });
                 }
+
+                // 通知パネルの開閉
+                const openNotificationPanel = () => {
+                    notificationPanel.classList.add('open');
+                    notificationPanel.setAttribute('aria-hidden', 'false');
+                    notificationBell.setAttribute('aria-expanded', 'true');
+                };
+
+                const closeNotificationPanel = () => {
+                    notificationPanel.classList.remove('open');
+                    notificationPanel.setAttribute('aria-hidden', 'true');
+                    notificationBell.setAttribute('aria-expanded', 'false');
+                };
+
+                if (notificationBell) {
+                    notificationBell.addEventListener('click', openNotificationPanel);
+                }
+
+                if (notificationClose) {
+                    notificationClose.addEventListener('click', closeNotificationPanel);
+                }
+
+                notificationPanel.addEventListener('click', (event) => {
+                    if (event.target === notificationPanel) {
+                        closeNotificationPanel();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && notificationPanel.classList.contains('open')) {
+                        closeNotificationPanel();
+                    }
+                });
             });
         </script>
     </body>

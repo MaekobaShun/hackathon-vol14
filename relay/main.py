@@ -164,6 +164,153 @@ def form():
         'form.html'
     )
 
+
+@app.route('/inheritance/<idea_id>')
+@login_required
+def inheritance_form(idea_id):
+    user_id = session['user_id']
+    
+    with get_connection() as con:
+        idea_row = con.execute(
+            "SELECT idea_id, title, detail, category, user_id, created_at FROM ideas WHERE idea_id = ?",
+            (idea_id,)
+        ).fetchone()
+        
+        if not idea_row:
+            flash('アイデアが見つかりません。')
+            return redirect(url_for('mypage'))
+        
+        parent_user_row = con.execute(
+            "SELECT user_id, nickname FROM mypage WHERE user_id = ?",
+            (idea_row[4],)
+        ).fetchone()
+    
+    idea = {
+        'idea_id': idea_row[0],
+        'title': idea_row[1],
+        'detail': idea_row[2],
+        'category': idea_row[3],
+        'user_id': idea_row[4],
+        'created_at': idea_row[5],
+        'author_nickname': parent_user_row[1] if parent_user_row else '不明なユーザー'
+    }
+    
+    return render_template(
+        'inheritance_form.html',
+        idea=idea
+    )
+
+
+@app.route('/inheritance/<idea_id>/save', methods=['POST'])
+@login_required
+def save_inheritance(idea_id):
+    user_id = session['user_id']
+    add_point = request.form.get('add_point', '').strip()
+    add_detail = request.form.get('add_detail', '').strip()
+    parent_idea_id = request.form.get('parent_idea_id')
+    parent_user_id = request.form.get('parent_user_id')
+
+    if not add_point:
+        flash('追加したポイントを入力してください。')
+        return redirect(url_for('inheritance_form', idea_id=idea_id))
+
+    if calculate_text_length(add_point) > 64:
+        flash('追加したポイントは全角32文字（半角64文字）以内で入力してください。')
+        return redirect(url_for('inheritance_form', idea_id=idea_id))
+
+    with get_connection() as con:
+        # 既存の継承レコードがあるか確認
+        existing = con.execute(
+            "SELECT inheritance_id FROM idea_inheritance WHERE parent_idea_id = ? AND child_user_id = ? AND child_idea_id IS NULL",
+            (parent_idea_id, user_id)
+        ).fetchone()
+
+        inheritance_id = str(uuid.uuid4())
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if existing:
+            # 既存のレコードを更新
+            con.execute(
+                """
+                UPDATE idea_inheritance 
+                SET add_point = ?, add_detail = ?, created_at = ?
+                WHERE inheritance_id = ?
+                """,
+                (add_point, add_detail if add_detail else None, created_at, existing[0])
+            )
+        else:
+            # 新規レコードを作成
+            con.execute(
+                """
+                INSERT INTO idea_inheritance 
+                (inheritance_id, parent_idea_id, parent_user_id, child_idea_id, child_user_id, add_point, add_detail, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (inheritance_id, parent_idea_id, parent_user_id, None, user_id, add_point, add_detail if add_detail else None, created_at)
+            )
+
+    flash('継承情報を保存しました。')
+    return redirect(url_for('mypage'))
+
+
+@app.route('/inheritance/<idea_id>/post', methods=['POST'])
+@login_required
+def post_inheritance(idea_id):
+    user_id = session['user_id']
+    add_point = request.form.get('add_point', '').strip()
+    add_detail = request.form.get('add_detail', '').strip()
+    parent_idea_id = request.form.get('parent_idea_id')
+    parent_user_id = request.form.get('parent_user_id')
+
+    if not add_point:
+        flash('追加したポイントを入力してください。')
+        return redirect(url_for('inheritance_form', idea_id=idea_id))
+
+    if calculate_text_length(add_point) > 64:
+        flash('追加したポイントは全角32文字（半角64文字）以内で入力してください。')
+        return redirect(url_for('inheritance_form', idea_id=idea_id))
+
+    with get_connection() as con:
+        # 親アイデアの情報を取得
+        parent_idea = con.execute(
+            "SELECT title, detail, category FROM ideas WHERE idea_id = ?",
+            (parent_idea_id,)
+        ).fetchone()
+
+        if not parent_idea:
+            flash('継承元のアイデアが見つかりません。')
+            return redirect(url_for('mypage'))
+
+        # 新しいアイデアを作成（継承元の情報をベースに）
+        child_idea_id = str(uuid.uuid4())
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # タイトルと詳細を継承元から取得（必要に応じて編集可能にする場合は変更）
+        child_title = parent_idea[0]  # 親のタイトルを使用
+        child_detail = parent_idea[1]  # 親の詳細を使用
+        child_category = parent_idea[2]  # 親のカテゴリを使用
+
+        # アイデアを登録
+        con.execute(
+            "INSERT INTO ideas (idea_id, title, detail, category, user_id, created_at, inheritance_flag) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (child_idea_id, child_title, child_detail, child_category, user_id, created_at, True)
+        )
+
+        # 継承情報を登録
+        inheritance_id = str(uuid.uuid4())
+        con.execute(
+            """
+            INSERT INTO idea_inheritance 
+            (inheritance_id, parent_idea_id, parent_user_id, child_idea_id, child_user_id, add_point, add_detail, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (inheritance_id, parent_idea_id, parent_user_id, child_idea_id, user_id, add_point, add_detail if add_detail else None, created_at)
+        )
+
+    flash('アイデアを継承して新規投稿しました。')
+    return redirect(url_for('index'))
+
+
 @app.route('/post', methods=['POST'])
 def post():
     if 'user_id' not in session:
@@ -600,6 +747,29 @@ def mypage():
             ORDER BY rn.created_at DESC
         """, (user_id,)).fetchall()
 
+        inheritance_rows = con.execute("""
+            SELECT 
+                ii.inheritance_id,
+                ii.parent_idea_id,
+                ii.child_idea_id,
+                ii.add_point,
+                ii.add_detail,
+                ii.created_at,
+                parent_i.title as parent_title,
+                parent_i.detail as parent_detail,
+                parent_i.category as parent_category,
+                parent_u.nickname as parent_nickname,
+                child_i.title as child_title,
+                child_i.detail as child_detail,
+                child_i.category as child_category
+            FROM idea_inheritance ii
+            LEFT JOIN ideas parent_i ON ii.parent_idea_id = parent_i.idea_id
+            LEFT JOIN mypage parent_u ON ii.parent_user_id = parent_u.user_id
+            LEFT JOIN ideas child_i ON ii.child_idea_id = child_i.idea_id
+            WHERE ii.child_user_id = ?
+            ORDER BY ii.created_at DESC
+        """, (user_id,)).fetchall()
+
     ideas = []
     for row in idea_rows:
         ideas.append({
@@ -633,10 +803,29 @@ def mypage():
             'category': row[6]
         })
 
+    inheritance_items = []
+    for row in inheritance_rows:
+        inheritance_items.append({
+            'inheritance_id': row[0],
+            'parent_idea_id': row[1],
+            'child_idea_id': row[2],
+            'add_point': row[3],
+            'add_detail': row[4],
+            'created_at': row[5],
+            'parent_title': row[6],
+            'parent_detail': row[7],
+            'parent_category': row[8],
+            'parent_nickname': row[9] if row[9] else '不明なユーザー',
+            'child_title': row[10],
+            'child_detail': row[11],
+            'child_category': row[12]
+        })
+
     return render_template(
         'mypage.html',
         user=user,
         ideas=ideas,
         gacha_results=gacha_results,
-        revival_notifications=revival_notifications
+        revival_notifications=revival_notifications,
+        inheritance_items=inheritance_items
     )

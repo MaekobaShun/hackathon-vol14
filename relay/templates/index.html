@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ひらめきリレー - ハブ</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='hub.css') }}">
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -15,6 +17,9 @@
                 <h1 class="logo-text">ひらめきリレー</h1>
             </div>
             <div class="header-right">
+                <a href="{{ url_for('mypage') }}" class="notification-bell" aria-label="通知を開く">
+                    <span class="bell-icon">🔔</span>
+                </a>
                 <div class="user-info">
                     <div class="welcome-text">ようこそ</div>
                     <div class="user-name">{{ user_name }}さん</div>
@@ -88,4 +93,5 @@
     <div class="floating-sparkle sparkle-1">✨</div>
     <div class="floating-sparkle sparkle-2">✨</div>
 </body>
+
 </html>

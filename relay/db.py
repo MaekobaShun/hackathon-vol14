@@ -147,6 +147,15 @@ def create_table():
             )
         """)
 
+        # Add inheritance_flag column to ideas table
+        if using_supabase():
+            con.execute("ALTER TABLE ideas ADD COLUMN IF NOT EXISTS inheritance_flag BOOLEAN DEFAULT FALSE")
+        else:
+            try:
+                con.execute("ALTER TABLE ideas ADD COLUMN inheritance_flag INTEGER DEFAULT 0")
+            except Exception:
+                pass
+
         con.execute("""
             CREATE TABLE IF NOT EXISTS gacha_result (
                 result_id    VARCHAR(64) PRIMARY KEY,
@@ -173,6 +182,19 @@ def create_table():
                 sender_id       VARCHAR(64) NOT NULL,
                 receiver_id     VARCHAR(64) NOT NULL,
                 stamp_type      VARCHAR(32) NOT NULL,
+                created_at      TIMESTAMP NOT NULL
+            )
+        """)
+
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS idea_inheritance (
+                inheritance_id  VARCHAR(64) PRIMARY KEY,
+                parent_idea_id  VARCHAR(64),
+                parent_user_id  VARCHAR(64),
+                child_idea_id   VARCHAR(64),
+                child_user_id   VARCHAR(64),
+                add_point       VARCHAR(64),
+                add_detail      TEXT,
                 created_at      TIMESTAMP NOT NULL
             )
         """)
